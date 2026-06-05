@@ -1,0 +1,15 @@
+schema: spec-driven
+
+context: |
+  Tech stack: TypeScript throughout
+  - Bot: discord.js 14 (TypeScript)
+  - API: NestJS + TypeORM + mysql2
+  - Dashboard: React 18 + Vite + Tailwind CSS (no component library)
+  - Database: MySQL
+  - Auth: Manual Discord OAuth2 + JWT (HttpOnly cookie)
+  - Monorepo: pnpm workspaces — packages/bot, packages/api, packages/dashboard, packages/shared
+
+  Project context:
+  - Private bot designed for a single Discord server "Wystrelia" + one dev/test server
+  - Self-hosted, single operator — not multi-tenant SaaS
+  - Use conventional commits
