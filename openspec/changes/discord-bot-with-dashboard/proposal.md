@@ -1,6 +1,6 @@
 ## Pourquoi
 
-Les communautés Discord manquent d'un outil unifié combinant gestion automatisée du serveur et interface de contrôle visuelle — les administrateurs jonglent entre plusieurs bots et les paramètres bruts de Discord. Ce projet livre un bot Discord auto-hébergé couplé à un dashboard web permettant aux administrateurs de configurer, surveiller et modérer leur serveur depuis une interface unique.
+Les communautés Discord manquent d'un outil unifié combinant gestion automatisée du serveur et interface de contrôle visuelle — les administrateurs jonglent entre plusieurs bots publiques ayant parfois des fonctionnalités restrictives et payantes mais aussi les paramètres bruts de Discord. Ce projet livre un bot Discord auto-hébergé couplé à un dashboard web permettant aux administrateurs de configurer, surveiller et modérer leur serveur depuis une interface unique.
 
 ## Ce qui change
 
