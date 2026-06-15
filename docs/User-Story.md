@@ -6,10 +6,10 @@ Wystrelia's Bot est un projet full-stack qui combine un bot Discord et un tablea
 
 ## Acteurs
 
-- **Administrateur** : accède au dashboard, configure le bot, modère via l'interface.
-- **Modérateur** : utilise les commandes Discord pour sanctionner et gérer les membres.
-- **Membre** : participe au serveur et bénéficie des fonctionnalités communautaires.
-- **Bot** : exécute l'auto-modération, les annonces et les actions définies.
+- **Administrateur** : accède au dashboard, configure le bot, modère via l'interface web. Doit posséder la permission `MANAGE_GUILD` sur le serveur.
+- **Modérateur** : utilise les commandes slash Discord pour sanctionner et gérer les membres.
+- **Membre** : participe au serveur et bénéficie des fonctionnalités communautaires (XP, classement, anniversaires).
+- **Bot** : exécute l'auto-modération, les crons et les actions déclenchées par le backend.
 
 
 ## Stories principales
@@ -21,18 +21,19 @@ Wystrelia's Bot est un projet full-stack qui combine un bot Discord et un tablea
 
 Critères d'acceptation
 - Étant donné un mot ajouté à la liste depuis le dashboard,
-- Quand un membre non exempté publie un message contenant ce mot,
-- Alors le message est supprimé en moins de 2 secondes et l'action est journalisée.
+- Quand un membre non exempté publie un message contenant ce mot (insensible à la casse),
+- Alors le message est supprimé, un embed de log est posté dans le salon de logs configuré, et l'action est journalisée.
 
 ### US-02 ⭐ — Avertir un membre
 **En tant que** modérateur,
 **Je veux** avertir un membre avec `/warn @membre raison`,
-**Afin de** tracer un comportement problématique.
+**Afin de** tracer un comportement problématique sans action Discord immédiate.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
+- Étant donné un modérateur possédant la permission `Kick Members`,
 - Quand il exécute `/warn @membre raison`,
-- Alors une entrée `Warning` est créée en base, le `warnCount` est mis à jour, et l'action est journalisée.
+- Alors une entrée `AuditEntry` (WARN) est créée en base, le membre reçoit un DM avec la raison et le nom du serveur, et l'action est journalisée.
+- Si le membre a les DMs désactivés, le warn est quand même enregistré et le modérateur en est informé.
 
 ### US-03 ⭐ — Bannir un membre
 **En tant que** modérateur,
@@ -40,39 +41,43 @@ Critères d'acceptation
 **Afin de** retirer définitivement un perturbateur du serveur.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
-- Quand il exécute `/ban @membre raison`,
-- Alors le membre est banni, et l'action est journalisée.
+- Étant donné un modérateur possédant la permission `Ban Members`,
+- Quand il exécute `/ban @membre raison supprimer_messages:7`,
+- Alors le membre est banni, les messages des 7 derniers jours sont optionnellement supprimés, et une entrée `AuditEntry` (BAN) est créée.
+- Le ban par ID fonctionne même si l'utilisateur n'est plus dans le serveur.
 
 ### US-04 — Bloquer le spam
 **En tant que** membre,
-**Je veux** que le bot détecte et bloque les spams,
+**Je veux** que le bot détecte et supprime les spams,
 **Afin de** préserver la lisibilité des discussions.
 
 Critères d'acceptation
-- Étant donné les règles de spam définies,
-- Quand un membre dépasse les seuils de fréquence ou de répétition,
-- Alors les messages en cause sont supprimés et un avertissement automatique est journalisé.
+- Étant donné que `spamDetectionEnabled` est activé dans la config,
+- Quand un membre non exempté envoie plus de 5 messages en moins de 5 secondes dans le même salon,
+- Alors les messages en excès sont supprimés et un embed de log est posté dans le salon de logs.
 
 ### US-05 — Gagner de l'XP
 **En tant que** membre,
-**Je veux** gagner de l'XP en participant,
-**Afin de** progresser en niveau et obtenir des récompenses.
+**Je veux** gagner de l'XP en participant (messages et activité vocale),
+**Afin de** progresser en niveau et obtenir des récompenses de rôles.
 
 Critères d'acceptation
-- Étant donné que le cooldown d'XP est expiré,
-- Quand j'envoie un message ou passe une minute en vocal actif,
-- Alors mon XP augmente selon le multiplicateur configuré, et le rôle de palier est attribué si nécessaire.
+- Étant donné que le cooldown d'XP (`messageCooldownSeconds`) est expiré,
+- Quand j'envoie un message, j'obtiens `xpPerMessage` points d'XP.
+- Quand je quitte un salon vocal après au moins 1 minute, j'obtiens `floor(minutes) × xpPerVoiceMinute` points d'XP.
+- Si un palier de niveau est franchi et qu'une récompense de rôle est configurée, le rôle est automatiquement attribué.
+- Le salon AFK et les messages de bots sont exclus du calcul.
 
 ### US-06 — Consulter mon rang
 **En tant que** membre,
 **Je veux** exécuter `/rank`,
-**Afin de** voir mon niveau, mon XP et ma position dans le classement.
+**Afin de** voir mon niveau, mon XP et ma position dans le classement du serveur.
 
 Critères d'acceptation
 - Étant donné un membre ayant de l'XP,
 - Quand il exécute `/rank`,
-- Alors le bot répond avec son niveau actuel, l'XP accumulée et l'XP requise pour le niveau suivant.
+- Alors le bot répond en éphémère avec son niveau, son XP total et sa position (ex. "#3 sur 47 membres").
+- Si le membre n'a aucun XP, le bot affiche XP : 0, Niveau : 0, sans classement.
 
 ### US-07 — Accueillir un nouveau membre
 **En tant que** administrateur,
@@ -80,19 +85,21 @@ Critères d'acceptation
 **Afin de** accueillir les nouveaux arrivants et leur donner un statut initial.
 
 Critères d'acceptation
-- Étant donné un message et un rôle de bienvenue configurés,
+- Étant donné un `welcomeChannelId` et un `autoRoleId` configurés,
 - Quand un membre rejoint le serveur,
-- Alors le message est publié et le rôle de départ est attribué automatiquement.
+- Alors un embed de bienvenue est publié dans le salon configuré et le rôle de départ est attribué dans les 5 secondes.
+- Si `welcomeMessage` est défini, il est inclus dans l'embed ; sinon un message par défaut est utilisé.
 
 ### US-08 ⭐ — Se connecter au dashboard
 **En tant que** administrateur,
-**Je veux** me connecter via OAuth2 Discord,
+**Je veux** me connecter via Discord OAuth2,
 **Afin de** accéder au dashboard en toute sécurité.
 
 Critères d'acceptation
-- Étant donné un utilisateur qui tente de se connecter,
-- Quand il s'authentifie via Discord,
-- Alors l'accès est refusé s'il n'est pas administrateur du serveur sinon il accède au dashboard.
+- Quand un utilisateur clique sur "Se connecter avec Discord" et accorde les scopes `identify guilds`,
+- Alors l'API échange le code, vérifie que l'utilisateur possède `MANAGE_GUILD` sur au moins un serveur où le bot est présent, et émet un JWT dans un cookie HttpOnly.
+- Si l'utilisateur n'est admin d'aucun serveur éligible, l'accès est refusé.
+- Si l'utilisateur annule la fenêtre OAuth, un message "Authentification annulée" est affiché.
 
 ### US-09 — Suivre l'activité du serveur
 **En tant que** administrateur,
@@ -100,9 +107,9 @@ Critères d'acceptation
 **Afin de** mesurer la santé de la communauté.
 
 Critères d'acceptation
-- Étant donné des données collectées,
+- Étant donné des données collectées par le bot,
 - Quand j'ouvre la page d'accueil du dashboard,
-- Alors je vois le nombre de membres, les arrivées/départs, les messages par jour et les membres les plus actifs.
+- Alors je vois le nombre de membres, les arrivées/départs du jour, les messages du jour, le top 5 des membres les plus actifs (username, niveau, XP) et les 3 dernières entrées d'audit.
 
 ### US-10 — Modérer en un clic
 **En tant que** administrateur,
@@ -110,9 +117,9 @@ Critères d'acceptation
 **Afin de** modérer sans taper de commande Discord.
 
 Critères d'acceptation
-- Étant donné un membre listé dans le dashboard,
-- Quand je clique sur une action de modération,
-- Alors l'action est exécutée par le bot et journalisée comme une commande équivalente.
+- Étant donné un membre listé dans la page "Membres" du dashboard,
+- Quand je clique sur une action (Avertir, Timeout, Expulser, Bannir),
+- Alors une modale de confirmation s'ouvre avec un champ "Raison" ; à la validation, l'action est exécutée via l'API et journalisée.
 
 ---
 
@@ -121,12 +128,12 @@ Critères d'acceptation
 ### US-11 — Consulter les informations d'un membre
 **En tant que** modérateur,
 **Je veux** utiliser `/userinfo @membre`,
-**Afin de** obtenir rapidement le profil et l'historique d'un membre.
+**Afin de** obtenir rapidement le profil complet d'un membre.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
 - Quand il exécute `/userinfo @membre`,
-- Alors le bot affiche les informations de profil, les avertissements et le niveau.
+- Alors le bot affiche : avatar, username, date d'arrivée, rôles, niveau XP, XP total et nombre de warns actifs.
+- Si le membre n'a aucun XP, niveau et XP s'affichent à 0.
 
 ### US-12 — Gérer les avertissements
 **En tant que** modérateur,
@@ -134,19 +141,19 @@ Critères d'acceptation
 **Afin de** corriger les avertissements et consulter l'historique.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
-- Quand il exécute `/unwarn @membre` ou `/warnings @membre`,
-- Alors le bot met à jour le compteur d'avertissements ou affiche la liste des warnings.
+- Quand il exécute `/warnings @membre`, le bot affiche tous les warns actifs (ID, raison, modérateur, date).
+- Quand il exécute `/unwarn @membre warn_id:42`, une entrée UNWARN est créée pour traçabilité (la ligne WARN originale n'est pas supprimée).
+- Si l'ID de warn est invalide, le bot répond en éphémère "Aucun avertissement trouvé avec cet ID".
 
 ### US-13 — Appliquer un timeout Discord
 **En tant que** modérateur,
 **Je veux** utiliser `/timeout` et `/untimeout`,
-**Afin de** restreindre temporairement un membre via Discord.
+**Afin de** restreindre temporairement un membre.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
-- Quand il exécute `/timeout @membre durée raison` ou `/untimeout @membre`,
-- Alors le timeout est appliqué ou levé et l'action est journalisée.
+- Quand il exécute `/timeout @membre durée:60 raison`, le timeout est appliqué pour 60 minutes et une entrée TIMEOUT est journalisée.
+- La durée doit être comprise entre 1 et 40 320 minutes ; hors plage, une erreur éphémère est retournée.
+- Quand il exécute `/untimeout @membre`, le timeout est levé et une entrée UNTIMEOUT est journalisée.
 
 ### US-14 — Verrouiller et déverrouiller un salon
 **En tant que** modérateur,
@@ -154,9 +161,9 @@ Critères d'acceptation
 **Afin de** contrôler l'accès à un salon en cas de dérive.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
-- Quand il exécute `/lock` ou `/unlock` sur un salon,
-- Alors les permissions du salon sont modifiées en conséquence et l'action est journalisée.
+- Quand il exécute `/lock`, la permission `SendMessages` de `@everyone` est retirée et une entrée LOCK est journalisée.
+- Quand il exécute `/unlock`, la permission est rétablie et une entrée UNLOCK est journalisée.
+- Si le salon est déjà verrouillé, le bot répond "Ce salon est déjà verrouillé".
 
 ### US-15 — Effacer des messages en bloc
 **En tant que** modérateur,
@@ -164,9 +171,8 @@ Critères d'acceptation
 **Afin de** nettoyer rapidement un salon.
 
 Critères d'acceptation
-- Étant donné un modérateur autorisé,
-- Quand il exécute `/clear nombre`,
-- Alors le nombre de messages spécifié est supprimé et l'action est journalisée.
+- Quand il exécute `/clear nombre:20`, les 20 messages les plus récents sont supprimés via `bulkDelete` et une entrée CLEAR est journalisée.
+- Les messages de plus de 14 jours (limite Discord) sont ignorés ; le bot indique combien ont réellement été supprimés.
 
 ### US-16 — Vérifier la disponibilité du bot
 **En tant que** modérateur,
@@ -176,7 +182,7 @@ Critères d'acceptation
 Critères d'acceptation
 - Étant donné le bot en ligne,
 - Quand je tape `/ping`,
-- Alors le bot répond avec la latence et la disponibilité.
+- Alors le bot répond avec la latence WebSocket et le round-trip de l'API Discord (en ms).
 
 ### US-17 — Afficher l'aide de modération
 **En tant que** modérateur,
@@ -184,9 +190,8 @@ Critères d'acceptation
 **Afin de** voir rapidement les commandes de modération disponibles.
 
 Critères d'acceptation
-- Étant donné un utilisateur autorisé,
 - Quand il exécute `/modhelp`,
-- Alors le bot affiche la liste des commandes et leur usage.
+- Alors le bot envoie un embed éphémère listant chaque commande avec sa syntaxe, sa description et la permission requise.
 
 ### US-18 — Filtrer les liens et invitations
 **En tant que** membre,
@@ -194,29 +199,29 @@ Critères d'acceptation
 **Afin de** préserver la sécurité du serveur.
 
 Critères d'acceptation
-- Étant donné un membre non exempté,
-- Quand il publie un lien ou une invitation Discord,
-- Alors le message est supprimé et l'action est journalisée.
+- Si `linkFilterEnabled` est actif et qu'un membre non exempté publie un message contenant `http://`, `https://` ou `www.`, le message est supprimé.
+- Si `inviteFilterEnabled` est actif et qu'un membre publie `discord.gg/` ou `discord.com/invite/`, le message est supprimé.
+- Dans les deux cas, un embed de log est posté dans le salon de logs si configuré.
 
 ### US-19 — Exemption de filtres
 **En tant que** administrateur,
-**Je veux** définir des rôles exemptés des filtres,
-**Afin de** éviter qu'une catégorie de membres ne soit soumise à l'auto-modération.
+**Je veux** définir des rôles exemptés des filtres d'auto-modération,
+**Afin de** éviter que certains membres (staff, bots) ne soient soumis aux règles.
 
 Critères d'acceptation
-- Étant donné un rôle ajouté aux exemptions,
-- Quand un membre portant ce rôle publie un message interdit,
-- Alors le filtre d'auto-modération ne s'applique pas.
+- Étant donné un rôle ajouté aux exemptions (`exemptRoleIds`),
+- Quand un membre portant ce rôle publie un contenu normalement filtré,
+- Alors aucun filtre d'auto-modération ne s'applique et aucun log n'est posté.
 
 ### US-20 — Gérer le système de niveaux
 **En tant que** administrateur,
-**Je veux** configurer les paliers de niveaux et le multiplicateur d'XP,
+**Je veux** configurer les taux XP, le cooldown et les paliers de récompenses depuis le dashboard,
 **Afin de** personnaliser le système de progression.
 
 Critères d'acceptation
 - Étant donné des paramètres de niveau modifiés dans le dashboard,
-- Quand un membre gagne de l'XP,
-- Alors l'XP et les niveaux sont calculés selon les nouveaux paramètres.
+- Quand je clique Enregistrer, un PATCH est envoyé à `/api/guilds/:guildId/xp/config` et un toast de succès est affiché.
+- Quand j'ajoute un palier niveau → rôle, le tableau `levelRewards` complet est envoyé ; le bot utilise les nouveaux paliers immédiatement.
 
 ### US-21 — Classement des membres actifs
 **En tant que** membre,
@@ -224,9 +229,8 @@ Critères d'acceptation
 **Afin de** voir le classement des membres les plus actifs.
 
 Critères d'acceptation
-- Étant donné des données d'activité,
-- Quand j'exécute `/top`,
-- Alors le bot affiche le classement des membres par XP ou niveau.
+- Quand j'exécute `/top`, le bot affiche les 10 premiers membres par XP (classement, username, XP, niveau).
+- Si moins de 10 membres ont de l'XP, tous sont affichés sans rembourrage.
 
 ### US-22 — Ajuster l'XP et le niveau
 **En tant que** administrateur,
@@ -234,19 +238,17 @@ Critères d'acceptation
 **Afin de** corriger ou récompenser manuellement les membres.
 
 Critères d'acceptation
-- Étant donné un administrateur autorisé,
-- Quand il exécute une commande d'ajustement,
-- Alors le bot met à jour les valeurs en base et journalise l'action.
+- Étant donné un administrateur possédant `MANAGE_GUILD`,
+- Quand il exécute une commande d'ajustement, le bot met à jour les valeurs en base, recalcule le niveau et assigne les rôles de récompense manquants si des paliers sont franchis.
 
 ### US-23 — Réinitialiser les points
 **En tant que** administrateur,
-**Je veux** utiliser `/reset`,
-**Afin de** remettre à zéro les points d'un membre ou d'un groupe.
+**Je veux** utiliser `/reset @membre`,
+**Afin de** remettre à zéro les points d'un membre.
 
 Critères d'acceptation
-- Étant donné un administrateur autorisé,
-- Quand il exécute `/reset @membre`,
-- Alors l'XP et le niveau du membre sont réinitialisés et l'action est journalisée.
+- Étant donné un administrateur possédant `MANAGE_GUILD`,
+- Quand il exécute `/reset @membre`, l'XP et le niveau du membre sont remis à 0 (les rôles de récompense acquis ne sont pas retirés automatiquement).
 
 ### US-24 — Média-Only Channel (MOC)
 **En tant que** administrateur,
@@ -255,8 +257,10 @@ Critères d'acceptation
 
 Critères d'acceptation
 - Étant donné un salon configuré en MOC,
-- Quand un membre y envoie un message sans média,
-- Alors le message est supprimé.
+- Quand un membre envoie un message sans pièce jointe ni embed image/vidéo,
+- Alors le message est supprimé et l'auteur reçoit un message éphémère expliquant la règle.
+- Les messages de bots ne sont pas supprimés.
+- Un salon déjà dans la liste MOC retourne une erreur 409 si on tente de l'ajouter à nouveau.
 
 ### US-25 — Envoyer un embed enregistré
 **En tant que** administrateur,
@@ -264,11 +268,12 @@ Critères d'acceptation
 **Afin de** produire des messages enrichis plus facilement.
 
 Critères d'acceptation
-- Étant donné un embed configuré et sauvegardé,
-- Quand j'ordonne son envoi,
-- Alors le bot publie l'embed dans le salon choisi.
+- Je peux créer un embed (nom, titre, description, couleur), le sauvegarder et le modifier ultérieurement.
+- Le panneau de prévisualisation se met à jour en temps réel pendant la saisie.
+- Je peux envoyer un embed sauvegardé dans un salon Discord en saisissant l'ID du salon cible.
+- La commande slash `/announce titre description couleur salon` permet aussi d'envoyer un embed ponctuel directement depuis Discord (nécessite `MANAGE_GUILD`).
 
-### US-26 — Réponse aléatoire au ping du bot
+### US-26 — Réponse aléatoire au ping du bot *(bonus)*
 **En tant que** membre,
 **Je veux** que le bot réponde de façon personnalisée quand on le mentionne,
 **Afin de** rendre l'expérience plus vivante.
@@ -280,31 +285,67 @@ Critères d'acceptation
 
 ### US-27 — Annoncer les anniversaires
 **En tant que** administrateur,
-**Je veux** envoyer un message d'anniversaire automatique,
+**Je veux** enregistrer les dates d'anniversaire des membres et recevoir un message automatique chaque année,
 **Afin de** célébrer les membres à leur date spéciale.
 
 Critères d'acceptation
-- Étant donné une date d'anniversaire enregistrée pour un membre,
-- Quand la date arrive,
-- Alors le bot publie un message d'anniversaire.
+- Je peux ajouter, modifier et supprimer des anniversaires (userId, mois, jour) depuis le dashboard.
+- Un mois hors plage ou un jour invalide retourne une erreur 422.
+- Chaque jour à minuit UTC, le bot envoie un embed dans `birthdayChannelId` pour les anniversaires du jour.
+- Si aucun salon n'est configuré, aucun message n'est envoyé et aucune erreur n'est levée.
 
-### US-28 — Suivi des streams Twitch
+### US-28 — Suivi des streams Twitch *(hors périmètre v1)*
 **En tant que** administrateur,
 **Je veux** détecter et annoncer les streams Twitch des membres suivis,
 **Afin de** promouvoir les diffusions en direct.
 
-Critères d'acceptation
-- Étant donné un membre Twitch suivi et la détection activée,
-- Quand il commence un stream,
-- Alors le bot publie une notification dans le salon défini.
-
 ### US-29 — Afficher l'historique des actions
 **En tant que** administrateur,
-**Je veux** consulter l'historique des actions de modération,
+**Je veux** consulter l'historique complet des actions de modération,
 **Afin de** avoir une traçabilité complète.
 
 Critères d'acceptation
-- Étant donné des actions de modération enregistrées,
-- Quand je consulte l'historique dans le dashboard,
-- Alors je vois les sanctions, auteurs, cibles, raisons et dates.
+- La page affiche les 25 entrées les plus récentes (triées par date décroissante) avec : type d'action, modérateur, cible, raison et horodatage.
+- Je peux filtrer par type d'action (`?action=BAN`) et par utilisateur cible (`?targetId=XXX`).
+- La pagination permet de naviguer vers les entrées plus anciennes.
+- Les entrées d'audit sont immuables : aucune suppression ou modification n'est possible.
 
+---
+
+## Stories ajoutées
+
+### US-30 — Expulser un membre
+**En tant que** modérateur,
+**Je veux** expulser un membre avec `/kick @membre raison`,
+**Afin de** retirer temporairement un perturbateur sans le bannir définitivement.
+
+Critères d'acceptation
+- Quand il exécute `/kick @membre raison`, la cible est expulsée, une entrée KICK est créée et une confirmation éphémère est envoyée.
+- Si la cible a un rôle supérieur ou égal à celui du modérateur, le bot retourne une erreur éphémère.
+
+### US-31 — Lever un bannissement
+**En tant que** modérateur,
+**Je veux** utiliser `/unban user_id raison`,
+**Afin de** réintégrer un membre banni après révision.
+
+Critères d'acceptation
+- Quand il exécute `/unban user_id:123456789 raison:"Appel accepté"`, le ban est levé et une entrée UNBAN est créée.
+- Si l'utilisateur n'est pas banni, le bot répond "Cet utilisateur n'est pas banni".
+
+### US-32 — Se déconnecter du dashboard
+**En tant que** administrateur,
+**Je veux** me déconnecter du dashboard,
+**Afin de** sécuriser mon accès sur un poste partagé.
+
+Critères d'acceptation
+- Quand je clique sur "Se déconnecter", `POST /auth/logout` est appelé, le cookie JWT est effacé côté serveur, et je suis redirigé vers la page d'accueil.
+- Si mon JWT expire, je suis automatiquement redirigé vers la page de connexion à la prochaine requête.
+
+### US-33 — Configurer les paramètres généraux du serveur
+**En tant que** administrateur,
+**Je veux** modifier les paramètres généraux depuis le dashboard (salon de logs, salon de bienvenue, auto-rôle, salon d'anniversaires),
+**Afin de** personnaliser le comportement du bot sur mon serveur.
+
+Critères d'acceptation
+- Quand je soumets le formulaire avec un champ modifié, un PATCH est envoyé à `/api/guilds/:guildId/config` et un toast de succès est affiché.
+- Un ID de salon invalide retourne une erreur 422 avec un message inline sur le champ concerné.
