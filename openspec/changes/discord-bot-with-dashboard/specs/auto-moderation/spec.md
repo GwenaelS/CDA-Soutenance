@@ -1,32 +1,50 @@
 ## Exigences AJOUTÉES
 
+> **Note MPD** : Les mots interdits sont stockés dans la table `FILTERED_WORD` (une ligne par mot, clé étrangère `guild_id`) et les rôles exemptés dans la table `EXEMPTED_ROLE` (une ligne par rôle). Ces données ne sont pas stockées en JSON dans une seule colonne.
+
+---
+
 ### Exigence : Les messages contenant des mots interdits sont supprimés automatiquement
-Le bot DOIT supprimer tout message dont le contenu contient un mot présent dans `AutoModerationConfig.bannedWords` du serveur.
+Le bot DOIT supprimer tout message dont le contenu contient un mot présent dans la table `FILTERED_WORD` du serveur.
 
 #### Scénario : Message contenant un mot interdit
-- **QUAND** un utilisateur envoie un message contenant un mot de la liste `bannedWords` (comparaison insensible à la casse)
-- **ALORS** le message est supprimé, un embed de log est posté dans `logChannelId` si configuré, indiquant l'auteur, le salon et le mot déclenché (masqué partiellement)
+- **QUAND** un utilisateur envoie un message contenant un mot de la liste `FILTERED_WORD` (comparaison insensible à la casse)
+- **ALORS** le message est supprimé, un embed de log est posté dans le salon configuré pour les logs d'auto-modération, indiquant l'auteur, le salon et le mot déclenché (masqué partiellement)
 
 #### Scénario : Message ne contenant aucun mot interdit
 - **QUAND** un utilisateur envoie un message sans mot interdit
 - **ALORS** aucune action n'est prise par l'auto-modération
 
 #### Scénario : Liste de mots interdits vide
-- **QUAND** `bannedWords` est un tableau vide pour ce serveur
+- **QUAND** aucune entrée `FILTERED_WORD` n'existe pour ce serveur
 - **ALORS** le filtre de mots interdits ne s'applique pas
 
 ---
 
-### Exigence : Les messages de spam sont supprimés automatiquement
-Si `spamDetectionEnabled` est `true`, le bot DOIT supprimer les messages d'un utilisateur qui envoie plus de 5 messages en moins de 5 secondes dans le même salon.
+### Exigence : Les messages de spam sont supprimés et le membre est muté automatiquement
+Si `spamDetectionEnabled` est `true`, le bot DOIT supprimer les messages excessifs et appliquer un timeout automatique à l'auteur.
 
-#### Scénario : Spam détecté
+Le spam est détecté dans deux cas (RG-08) :
+- Un utilisateur envoie plus de 5 messages en moins de 5 secondes dans le même salon.
+- Un utilisateur envoie un message contenant 5 mentions ou plus.
+
+#### Scénario : Spam par volume de messages détecté
 - **QUAND** un utilisateur envoie 6 messages en moins de 5 secondes dans le même salon
-- **ALORS** le 6ème message (et les suivants dans la fenêtre) est supprimé et un embed de log est posté dans `logChannelId` si configuré
+- **ALORS** les messages en excès sont supprimés, un mute automatique (timeout Discord) d'une durée de `autoMuteDurationMinutes` (défaut 60 min) est appliqué, et un embed de log est posté dans le salon de logs d'auto-modération si configuré
+- **ET** aucun avertissement (`WARNING`) n'est créé automatiquement — seul le mute et le log sont générés (RG-09)
+
+#### Scénario : Spam par mentions détecté
+- **QUAND** un utilisateur envoie un message contenant 5 mentions ou plus (utilisateurs, rôles ou `@everyone`/`@here`)
+- **ALORS** le message est supprimé, un mute automatique d'une durée de `autoMuteDurationMinutes` est appliqué, et un embed de log est posté
 
 #### Scénario : Détection de spam désactivée
 - **QUAND** `spamDetectionEnabled` est `false`
-- **ALORS** aucune vérification de spam n'est effectuée, quel que soit le rythme d'envoi
+- **ALORS** aucune vérification de spam n'est effectuée, quel que soit le rythme d'envoi ou le nombre de mentions
+
+#### Scénario : Durée du mute automatique configurable
+- **QUAND** un admin modifie `autoMuteDurationMinutes` depuis le dashboard
+- **ALORS** tous les mutes automatiques suivants utilisent cette durée ; la valeur par défaut est 60 minutes (RG-13)
+- **ET** cette durée est distincte du timeout manuel dont la durée est choisie par le modérateur
 
 ---
 
@@ -35,7 +53,7 @@ Si `linkFilterEnabled` est `true`, le bot DOIT supprimer tout message contenant 
 
 #### Scénario : Message avec lien détecté
 - **QUAND** un utilisateur envoie un message contenant `http://`, `https://` ou `www.` et que `linkFilterEnabled` est `true`
-- **ALORS** le message est supprimé et un embed de log est posté dans `logChannelId` si configuré
+- **ALORS** le message est supprimé et un embed de log est posté dans le salon de logs d'auto-modération si configuré
 
 #### Scénario : Filtre de liens désactivé
 - **QUAND** `linkFilterEnabled` est `false`
@@ -48,7 +66,7 @@ Si `inviteFilterEnabled` est `true`, le bot DOIT supprimer tout message contenan
 
 #### Scénario : Invitation Discord détectée
 - **QUAND** un utilisateur envoie un message contenant `discord.gg/` ou `discord.com/invite/` et que `inviteFilterEnabled` est `true`
-- **ALORS** le message est supprimé et un embed de log est posté dans `logChannelId` si configuré
+- **ALORS** le message est supprimé et un embed de log est posté dans le salon de logs d'auto-modération si configuré
 
 #### Scénario : Filtre d'invitations désactivé
 - **QUAND** `inviteFilterEnabled` est `false`
@@ -57,10 +75,10 @@ Si `inviteFilterEnabled` est `true`, le bot DOIT supprimer tout message contenan
 ---
 
 ### Exigence : Les membres possédant un rôle exempté ne sont pas soumis aux filtres
-Si l'auteur d'un message possède un rôle présent dans `AutoModerationConfig.exemptRoleIds`, aucun filtre d'auto-modération ne s'applique à ce message.
+Si l'auteur d'un message possède un rôle présent dans la table `EXEMPTED_ROLE` du serveur, aucun filtre d'auto-modération ne s'applique à ce message et aucun log n'est posté.
 
 #### Scénario : Membre exempté envoie un mot interdit
-- **QUAND** un membre avec un rôle exempté envoie un message contenant un mot interdit
+- **QUAND** un membre avec un rôle présent dans `EXEMPTED_ROLE` envoie un message contenant un mot interdit
 - **ALORS** aucune action n'est prise et aucun log n'est posté
 
 #### Scénario : Membre non exempté envoie un mot interdit
@@ -70,16 +88,28 @@ Si l'auteur d'un message possède un rôle présent dans `AutoModerationConfig.e
 ---
 
 ### Exigence : La configuration d'auto-modération est lisible et modifiable via l'API
-L'API DOIT exposer des endpoints GET et PATCH pour `AutoModerationConfig`, protégés par les guards d'authentification.
+L'API DOIT exposer des endpoints GET et PATCH pour la configuration d'auto-modération, protégés par les guards d'authentification.
 
 #### Scénario : Lecture de la config d'auto-modération
 - **QUAND** un admin envoie `GET /api/guilds/{guildId}/auto-moderation`
-- **ALORS** la réponse contient la config complète (`bannedWords`, toggles, `exemptRoleIds`)
+- **ALORS** la réponse contient : la liste des mots interdits (`FILTERED_WORD`), les toggles (`spamDetectionEnabled`, `linkFilterEnabled`, `inviteFilterEnabled`), la durée de mute automatique (`autoMuteDurationMinutes`), et la liste des rôles exemptés (`EXEMPTED_ROLE`)
 
-#### Scénario : Mise à jour de la liste de mots interdits
-- **QUAND** un admin envoie `PATCH /api/guilds/{guildId}/auto-moderation` avec `{ "bannedWords": ["mot1", "mot2"] }`
-- **ALORS** le tableau `bannedWords` est remplacé entièrement, le cache en mémoire du bot est invalidé, et la réponse contient la config mise à jour
+#### Scénario : Ajout d'un mot interdit
+- **QUAND** un admin envoie `POST /api/guilds/{guildId}/auto-moderation/banned-words` avec `{ "word": "mot1" }`
+- **ALORS** une ligne est insérée dans la table `FILTERED_WORD`, le cache en mémoire du bot est invalidé, et la réponse confirme l'ajout
+
+#### Scénario : Suppression d'un mot interdit
+- **QUAND** un admin envoie `DELETE /api/guilds/{guildId}/auto-moderation/banned-words/{wordId}`
+- **ALORS** la ligne correspondante dans `FILTERED_WORD` est supprimée et le cache est invalidé
+
+#### Scénario : Ajout d'un rôle exempté
+- **QUAND** un admin envoie `POST /api/guilds/{guildId}/auto-moderation/exempt-roles` avec `{ "roleId": "123456789" }`
+- **ALORS** une ligne est insérée dans la table `EXEMPTED_ROLE` et le cache est invalidé
 
 #### Scénario : Activation du filtre de spam
 - **QUAND** un admin envoie `PATCH /api/guilds/{guildId}/auto-moderation` avec `{ "spamDetectionEnabled": true }`
 - **ALORS** `spamDetectionEnabled` passe à `true`, le cache est invalidé, et le bot commence à détecter le spam
+
+#### Scénario : Modification de la durée du mute automatique
+- **QUAND** un admin envoie `PATCH /api/guilds/{guildId}/auto-moderation` avec `{ "autoMuteDurationMinutes": 30 }`
+- **ALORS** `autoMuteDurationMinutes` est mis à jour ; les prochains mutes automatiques dureront 30 minutes

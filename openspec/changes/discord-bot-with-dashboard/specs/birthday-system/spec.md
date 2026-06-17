@@ -22,11 +22,11 @@ Le système DOIT permettre d'enregistrer la date d'anniversaire (mois et jour) d
 ---
 
 ### Exigence : Le bot envoie automatiquement un message d'anniversaire chaque jour
-Un job cron s'exécutant à minuit UTC DOIT vérifier les anniversaires du jour et envoyer un embed dans le salon configuré pour chaque serveur concerné.
+Un job cron s'exécutant à **10h00 Europe/Paris** DOIT vérifier les anniversaires du jour et envoyer un embed dans le salon configuré pour chaque serveur concerné (RG-23).
 
 #### Scénario : Anniversaire détecté le bon jour
-- **QUAND** le cron s'exécute et que la date courante (UTC) correspond au `month` et `day` d'une entrée `Birthday`
-- **ALORS** un embed d'anniversaire est envoyé dans `GuildConfig.birthdayChannelId` du serveur concerné, mentionnant le membre
+- **QUAND** le cron s'exécute à 10h00 Europe/Paris et que la date courante (Europe/Paris) correspond au `month` et `day` d'une entrée `Birthday`
+- **ALORS** un embed d'anniversaire est envoyé dans `GUILD_CONFIG.birthday_channel_id` du serveur concerné, mentionnant le membre
 
 #### Scénario : Plusieurs anniversaires le même jour
 - **QUAND** plusieurs membres ont leur anniversaire le même jour dans le même serveur
@@ -47,8 +47,8 @@ Le job cron d'anniversaires DOIT être initialisé dans `src/index.ts` et s'exé
 
 #### Scénario : Démarrage du bot
 - **QUAND** le processus bot démarre avec succès
-- **ALORS** le cron d'anniversaires est enregistré et le bot logue "Cron d'anniversaires initialisé (quotidien, 00:00 UTC)"
+- **ALORS** le cron d'anniversaires est enregistré et le bot logue "Cron d'anniversaires initialisé (quotidien, 10:00 Europe/Paris)"
 
-#### Scénario : Redémarrage du bot entre minuit et l'exécution du cron
-- **QUAND** le bot redémarre après minuit UTC mais que le cron du jour n'a pas encore été exécuté
-- **ALORS** le cron s'exécutera à la prochaine occurrence de minuit UTC ; les anniversaires du jour seront envoyés le lendemain
+#### Scénario : Redémarrage du bot entre 00h00 et 10h00 Paris
+- **QUAND** le bot redémarre après minuit mais avant 10h00 Europe/Paris et que le cron du jour n'a pas encore été exécuté
+- **ALORS** le cron s'exécutera à la prochaine occurrence de 10h00 Europe/Paris ce même jour ; les anniversaires du jour seront bien envoyés

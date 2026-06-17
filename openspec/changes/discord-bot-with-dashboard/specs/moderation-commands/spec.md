@@ -70,40 +70,42 @@ La commande slash `/untimeout` DOIT lever le timeout d'un membre en remettant `c
 ---
 
 ### Exigence : La commande warn enregistre un avertissement
-La commande slash `/warn` DOIT enregistrer un avertissement en base de données et envoyer un DM à la cible sans action Discord de niveau serveur.
+La commande slash `/warn` DOIT créer une entrée dans la table `WARNING` et une entrée immuable dans `LOGS`, puis envoyer un DM à la cible (RG-11, RG-12).
+
+> **Note MPD** : La table `WARNING` a les colonnes `target_id`, `author_id`, `reason`, `is_active`. Elle est **distincte** de `LOGS` qui est immuable. Un avertissement actif a `is_active = true`.
 
 #### Scénario : Warn réussi
 - **QUAND** un modérateur exécute `/warn @utilisateur raison:"Hors-sujet"`
-- **ALORS** une `AuditEntry` (WARN) est écrite et la cible reçoit un DM avec la raison et le nom du serveur
+- **ALORS** une ligne `WARNING` est créée avec `is_active = true`, une ligne `LOGS` (type WARN) est écrite pour l'audit, et la cible reçoit un DM avec la raison et le nom du serveur
 
 #### Scénario : La cible a les DMs désactivés
 - **QUAND** l'utilisateur ciblé ne peut pas recevoir de DMs
-- **ALORS** le warn est quand même enregistré en base et le modérateur est informé que le DM n'a pas pu être délivré
+- **ALORS** la ligne `WARNING` et la ligne `LOGS` sont quand même créées ; le modérateur est informé que le DM n'a pas pu être délivré
 
 ---
 
-### Exigence : La commande unwarn supprime un avertissement
-La commande slash `/unwarn` DOIT supprimer un warn existant par son ID et enregistrer une entrée d'audit.
+### Exigence : La commande unwarn lève un avertissement
+La commande slash `/unwarn` DOIT désactiver un warn existant par son ID et enregistrer une entrée d'audit (RG-12). L'entrée `WARNING` originale est conservée pour la traçabilité.
 
 #### Scénario : Unwarn réussi
 - **QUAND** un modérateur exécute `/unwarn @utilisateur warn_id:42`
-- **ALORS** la ligne `AuditEntry` correspondante est supprimée de la liste active et une `AuditEntry` (UNWARN) est écrite pour traçabilité
+- **ALORS** `WARNING.is_active` de la ligne correspondante est mis à `false`, et une nouvelle ligne `LOGS` de type UNWARN est écrite pour traçabilité — la ligne `WARNING` originale n'est jamais supprimée (RG-12)
 
 #### Scénario : ID de warn invalide
-- **QUAND** l'ID fourni ne correspond à aucun warn actif de cet utilisateur dans ce serveur
+- **QUAND** l'ID fourni ne correspond à aucun warn actif (`is_active = true`) de cet utilisateur dans ce serveur
 - **ALORS** le bot répond avec un message éphémère "Aucun avertissement trouvé avec cet ID"
 
 ---
 
-### Exigence : La commande warnings liste les avertissements d'un utilisateur
-La commande slash `/warnings` DOIT afficher tous les warns actifs d'un utilisateur dans le serveur.
+### Exigence : La commande warnings liste les avertissements actifs d'un utilisateur
+La commande slash `/warnings` DOIT afficher tous les warns actifs (`is_active = true`) d'un utilisateur dans le serveur, depuis la table `WARNING`.
 
-#### Scénario : Utilisateur avec des warns
+#### Scénario : Utilisateur avec des warns actifs
 - **QUAND** un modérateur exécute `/warnings @utilisateur`
-- **ALORS** le bot répond en éphémère avec un embed listant chaque warn : ID, raison, modérateur, date
+- **ALORS** le bot répond en éphémère avec un embed listant chaque warn actif : ID, raison, modérateur (author_id), date
 
-#### Scénario : Utilisateur sans warn
-- **QUAND** l'utilisateur ciblé n'a aucun warn actif dans ce serveur
+#### Scénario : Utilisateur sans warn actif
+- **QUAND** l'utilisateur ciblé n'a aucun warn avec `is_active = true` dans ce serveur
 - **ALORS** le bot répond avec un message éphémère "Cet utilisateur n'a aucun avertissement actif"
 
 ---

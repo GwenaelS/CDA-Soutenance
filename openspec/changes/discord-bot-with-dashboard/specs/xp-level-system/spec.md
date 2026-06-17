@@ -4,8 +4,8 @@
 Le bot DOIT accorder de l'XP à l'auteur du message à chaque message qualifiant, sous réserve d'un cooldown par utilisateur pour prévenir le farming.
 
 #### Scénario : Message gagnant de l'XP hors période de cooldown
-- **QUAND** un utilisateur envoie un message et que sa dernière récompense XP remonte à plus de `messageCooldownSeconds`
-- **ALORS** `xpPerMessage` est ajouté à `UserXp.xp` et `lastMessageAt` est mis à jour
+- **QUAND** un utilisateur envoie un message et que sa dernière récompense XP remonte à plus de `xp_cooldown_sec`
+- **ALORS** `floor(xp_per_message × xp_multiplier)` est ajouté à `MEMBER.current_xp` et `last_xp_at` est mis à jour
 
 #### Scénario : Message envoyé dans la fenêtre de cooldown
 - **QUAND** un utilisateur envoie un message dans les `messageCooldownSeconds` suivant sa dernière récompense
@@ -22,7 +22,7 @@ Le bot DOIT suivre le temps passé dans les salons vocaux et accorder de l'XP au
 
 #### Scénario : L'utilisateur quitte le vocal après un temps qualifiant
 - **QUAND** un utilisateur quitte un salon vocal après y avoir passé au moins une minute complète
-- **ALORS** `floor(minutesEnVocal) * xpPerVoiceMinute` est ajouté à `UserXp.xp`
+- **ALORS** `floor(minutesEnVocal × xp_per_voice_min × xp_multiplier)` est ajouté à `MEMBER.current_xp`
 
 #### Scénario : L'utilisateur rejoint puis quitte immédiatement le vocal
 - **QUAND** un utilisateur quitte un salon vocal dans la première minute
@@ -34,8 +34,21 @@ Le bot DOIT suivre le temps passé dans les salons vocaux et accorder de l'XP au
 
 ---
 
+### Exigence : Un multiplicateur global amplifie tous les gains XP
+`LEVEL_CONFIG.xp_multiplier` est un coefficient appliqué à tout gain XP (messages et vocal). Sa valeur par défaut est `1.0`. Il est configurable depuis le dashboard (RG-18).
+
+#### Scénario : Multiplicateur à 2.0 actif
+- **QUAND** `xp_multiplier` est fixé à `2.0` et qu'un utilisateur gagne normalement `xpPerMessage` points
+- **ALORS** l'utilisateur gagne `xpPerMessage × 2.0` points d'XP
+
+#### Scénario : Multiplicateur à 1.0 (défaut)
+- **QUAND** `xp_multiplier` est à sa valeur par défaut `1.0`
+- **ALORS** aucune modification n'est appliquée aux gains
+
+---
+
 ### Exigence : L'XP texte et vocal alimentent un pool unique
-L'XP textuel et vocal sont additionnés dans le même compteur `UserXp.xp`. Il n'y a pas de barres séparées texte et vocal.
+L'XP textuel et vocal sont additionnés dans le même compteur `MEMBER.current_xp`. Il n'y a pas de barres séparées texte et vocal (RG-15).
 
 #### Scénario : L'XP combiné déclenche un passage de niveau
 - **QUAND** l'XP total d'un utilisateur (toutes sources confondues) franchit un palier de niveau
