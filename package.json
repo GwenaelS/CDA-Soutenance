@@ -1,0 +1,16 @@
+{
+    "name": "wystrelia-bot",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build:shared": "npm run build --workspace=@wystrelia/shared",
+        "dev:shared": "npm run dev --workspace=@wystrelia/shared",
+        "dev:api": "npm run start:dev --workspace=api",
+        "dev:bot": "npm run start:dev --workspace=bot",
+        "dev:dashboard": "npm run dev --workspace=dashboard"
+    }
+}

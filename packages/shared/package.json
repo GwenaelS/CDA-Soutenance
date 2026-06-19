@@ -1,0 +1,39 @@
+{
+    "name": "@wystrelia/shared",
+    "version": "1.0.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist.index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./entities": {
+            "types": "./dist/entities/index.d.ts",
+            "default": "./dist/entities/index.js"
+        },
+        "./domain": {
+            "types": "./dist/domain/index.d.ts",
+            "default": "./dist/domain/index.js"
+        },
+        "./types": {
+            "types": "./dist/types/index.d.ts",
+            "default": "./dist/types/index.js"
+        },
+        "./enums": {
+            "types": "./dist/enums/index.d.ts",
+            "default": "./dist/enums/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "dependencies": {
+        "typeorm": "^1.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^6.0.3"
+    }
+}
