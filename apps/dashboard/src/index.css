@@ -5,11 +5,11 @@
 @layer base {
   :root {
     --background: #f1f5f9;
-    --foreground: #240046;
+    --foreground: #08001A;
     --card: #ffffff;
-    --card-foreground: #240046;
+    --card-foreground: #08001A;
     --popover: #ffffff;
-    --popover-foreground: #240046;
+    --popover-foreground: #08001A;
     --primary: #7b2cbf;
     --primary-foreground: #ffffff;
     --secondary: #25f8ff;
@@ -29,11 +29,11 @@
     --chart-4: #00c5cc;
     --chart-5: #9d4edd;
     --sidebar: #ffffff;
-    --sidebar-foreground: #240046;
+    --sidebar-foreground: #08001A;
     --sidebar-primary: #7b2cbf;
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #f1f5f9;
-    --sidebar-accent-foreground: #240046;
+    --sidebar-accent-foreground: #08001A;
     --sidebar-border: #e2e8f0;
     --sidebar-ring: #7b2cbf;
     --font-sans: Inter, system-ui, sans-serif;
@@ -64,7 +64,7 @@
   .dark {
     --background: #10002b;
     --foreground: #dcb6fb;
-    --card: #240046;
+    --card: #08001A;
     --card-foreground: #ffffff;
     --popover: #10002b;
     --popover-foreground: #c77dff;
@@ -79,7 +79,7 @@
     --destructive: #8b0000;
     --destructive-foreground: #ffffff;
     --border: #3c096c;
-    --input: #240046;
+    --input: #08001A;
     --ring: #25f8ff;
     --chart-1: #25f8ff;
     --chart-2: #7b2cbf;

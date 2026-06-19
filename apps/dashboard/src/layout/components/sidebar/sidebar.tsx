@@ -1,0 +1,176 @@
+import { useState } from "react";
+import { Home, Settings, Menu, X, ChevronDown, ChevronUp } from "lucide-react";
+import type { ServerListProps } from "@wystrelia/shared/types";
+
+export default function ServerList({
+    selectedServer,
+    setSelectedServer,
+    servers
+}: ServerListProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const categories = [
+        {
+            title: "GÉNÉRAL",
+            links: [
+                { name: "Statistiques", href: "#statistiques" },
+                { name: "Liste des membres", href: "#membres" }
+            ]
+        },
+        {
+            title: "MODÉRATION",
+            links: [
+                { name: "Mots-filtrés", href: "#mots-filtres" },
+                { name: "Avertissements", href: "#avertissements" },
+                { name: "Logs", href: "#logs" }
+            ]
+        },
+        {
+            title: "COMMUNAUTAIRE",
+            links: [
+                { name: "Système d'expérience", href: "#xp" }
+            ]
+        }
+    ];
+
+    return (
+        <>
+            <button
+                className="lg:hidden absolute top-2 left-4 z-50 p-1.5 text-white bg-[#140030] hover:bg-purple-900 border border-border rounded-lg transition-colors cursor-pointer"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle Menu"
+            >
+                {isOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <div className={`
+        fixed inset-y-0 left-0 z-40 flex lg:w-[310px] w-[240px] border-r border-border transform transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+        lg:translate-x-0 lg:static lg:h-screen shrink-0
+      `}>
+                <div className="hidden lg:flex flex-col w-[70px] bg-[#070016] border-r border-border/40 py-6 justify-between shrink-0">
+                    <div className="flex flex-col items-center gap-4 w-full">
+                        <button className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition shadow-md group relative cursor-pointer">
+                            <Home size={20} className="text-white group-hover:text-cyan-300 transition-colors" />
+                            <div className="absolute left-0 w-1 h-0 bg-white rounded-r-md group-hover:h-5 transition-all duration-200" />
+                        </button>
+
+                        <div className="w-10 h-[1px] bg-border/40 my-2" />
+
+                        <div className="flex flex-col gap-3 items-center w-full">
+                            {servers.map((server) => {
+                                const isCurrent = server.id === selectedServer.id;
+                                return (
+                                    <button
+                                        key={server.id}
+                                        onClick={() => {
+                                            setSelectedServer(server);
+                                        }}
+                                        className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#140030] to-[#0c0020] hover:scale-105 transition flex items-center justify-center relative group border border-border/20 hover:border-cyan-400 cursor-pointer"
+                                    >
+                                        <div className={`absolute left-0 w-1 rounded-r-md bg-cyan-400 transition-all duration-300 ${isCurrent ? 'h-8' : 'h-0 group-hover:h-4'}`} />
+                                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${server.gradient} flex items-center justify-center font-extrabold text-white text-sm shadow-sm`}>
+                                            {server.icon}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <button className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 flex items-center justify-center hover:scale-105 transition shadow-md group cursor-pointer">
+                        <Settings size={20} className="text-slate-300 group-hover:text-cyan-300 transition-colors" />
+                    </button>
+                </div>
+
+                <div className="w-[240px] bg-[#140030] flex flex-col h-full py-6 px-4 overflow-y-auto shrink-0 select-none">
+                    <div className="flex items-center justify-center gap-3 border-b border-border/20 pb-4">
+                        <div className="relative ">
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-base shadow-md border border-border/30">
+                                Z
+                            </div>
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#00edf5] border-2 border-[#140030] rounded-full shadow-[0_0_8px_rgba(0,237,245,0.7)]" />
+                        </div>
+                    </div>
+
+                    <div className="mt-4 relative">
+                        <div
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="p-2.5 rounded-xl bg-[#0c0020] border border-border/50 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer flex items-center justify-between shadow-sm"
+                        >
+                            <div className="flex items-center min-w-0">
+                                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${selectedServer.gradient} flex items-center justify-center font-extrabold text-white text-sm shadow-inner`}>
+                                    {selectedServer.icon}
+                                </div>
+                                <div className="ml-2.5 min-w-0">
+                                    <p className="text-xs font-extrabold text-white truncate">{selectedServer.name}</p>
+                                    <p className="text-[9px] text-cyan-400 font-semibold tracking-wider uppercase mt-0.5">Serveur actif</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                                <span className="px-1.5 py-0.5 text-[8px] border border-cyan-500/80 text-cyan-400 rounded bg-cyan-950/30 font-bold uppercase tracking-wider">Actif</span>
+                                {isDropdownOpen ? <ChevronUp size={14} className="text-purple-400" /> : <ChevronDown size={14} className="text-purple-400" />}
+                            </div>
+                        </div>
+
+                        {isDropdownOpen && (
+                            <div className="absolute left-0 right-0 mt-1.5 bg-[#0c0020] border border-border/70 rounded-xl overflow-hidden shadow-2xl divide-y divide-border/20 z-50">
+                                {servers.map((server) => (
+                                    <div
+                                        key={server.id}
+                                        onClick={() => {
+                                            setSelectedServer(server);
+                                            setIsDropdownOpen(false);
+                                            setIsOpen(false);
+                                        }}
+                                        className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-colors duration-200 ${server.id === selectedServer.id ? 'bg-purple-950/30' : 'hover:bg-[#140030]'
+                                            }`}
+                                    >
+                                        <div className="flex items-center min-w-0">
+                                            <div className={`w-7 h-7 rounded bg-gradient-to-br ${server.gradient} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
+                                                {server.icon}
+                                            </div>
+                                            <span className="text-xs text-purple-100 font-semibold ml-2.5 truncate">{server.name}</span>
+                                        </div>
+                                        {server.id === selectedServer.id && (
+                                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(0,237,245,0.8)]" />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mt-8 space-y-6 flex-1">
+                        {categories.map((category) => (
+                            <div key={category.title} className="space-y-2.5">
+                                <p className="text-[10px] font-bold text-[#8e7aab] tracking-widest uppercase pl-1">{category.title}</p>
+                                <ul className="space-y-1 animate-fadeIn">
+                                    {category.links.map((link) => (
+                                        <li key={link.name}>
+                                            <a
+                                                href={link.href}
+                                                className="flex items-center text-sm text-[#dcb6fb] hover:text-cyan-400 font-medium py-1.5 px-2.5 rounded-lg hover:bg-purple-950/10 group transition-all duration-200"
+                                            >
+                                                <span className="w-1.5 h-1.5 rotate-45 bg-[#8e7aab]/40 group-hover:bg-[#00edf5] group-hover:shadow-[0_0_8px_#00edf5] transition-all duration-300 mr-3 inline-block shrink-0" />
+                                                <span className="truncate">{link.name}</span>
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {isOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-30 transition-opacity duration-300"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+        </>
+    );
+}
