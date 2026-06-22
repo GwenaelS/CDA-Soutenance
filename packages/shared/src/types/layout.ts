@@ -16,5 +16,9 @@ export interface ServerListProps {
   selectedServer: Server;
   setSelectedServer: (server: Server) => void;
   servers: Server[];
+  currentPath?: string;
+  onNavigate?: (path: string) => void;
 }
+
+
 
