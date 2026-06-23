@@ -23,12 +23,14 @@
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/data-source.ts"
   },
   "dependencies": {
-    "@wystrelia/shared": "*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.4",
     "@nestjs/typeorm": "^11.0.1",
+    "@wystrelia/shared": "*",
+    "discord.js": "^14.26.4",
     "mysql2": "^3.22.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
