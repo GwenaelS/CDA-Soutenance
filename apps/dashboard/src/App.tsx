@@ -86,20 +86,20 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0c0020] text-foreground">
-      <ServerList
-        selectedServer={selectedServer}
-        setSelectedServer={(server) => {
-          setSelectedServer(server)
-          const suffix = isMembersPage ? '/members' : ''
-          navigate(`/dashboard/${server.id}${suffix}`)
-        }}
-        servers={FAKE_SERVERS}
-        currentPath={currentPath}
-        onNavigate={navigate}
-      />
-      <div className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        <Header selectedServerName={selectedServer.name} />
+    <div className="flex flex-col h-screen bg-[#0c0020] text-foreground overflow-hidden">
+      <Header selectedServerName={selectedServer.name} />
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        <ServerList
+          selectedServer={selectedServer}
+          setSelectedServer={(server) => {
+            setSelectedServer(server)
+            const suffix = isMembersPage ? '/members' : ''
+            navigate(`/dashboard/${server.id}${suffix}`)
+          }}
+          servers={FAKE_SERVERS}
+          currentPath={currentPath}
+          onNavigate={navigate}
+        />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {isMembersPage ? (

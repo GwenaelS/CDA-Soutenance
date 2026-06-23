@@ -49,7 +49,7 @@ export default function ServerList({
             <div className={`
                 fixed inset-y-0 left-0 z-40 flex lg:w-[310px] w-[240px] border-r border-border transform transition-transform duration-300 ease-in-out
                 ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-                lg:translate-x-0 lg:static lg:h-screen shrink-0
+                lg:translate-x-0 lg:static lg:h-full shrink-0
             `}>
                 <div className="hidden lg:flex flex-col w-[70px] bg-[#070016] border-r border-border/40 py-6 justify-between shrink-0">
                     <div className="flex flex-col items-center gap-4 w-full">
