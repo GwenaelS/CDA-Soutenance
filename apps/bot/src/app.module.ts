@@ -65,4 +65,4 @@ import { EventModule } from './events/event.module';
     EventModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

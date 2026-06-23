@@ -3,6 +3,7 @@ import { Header } from './layout/components/header/Header'
 import ServerList from './layout/components/sidebar/sidebar'
 import type { DashboardServer } from '@wystrelia/shared/types'
 import { MembersPage } from './features/members/MembersPage'
+import { StatsPage } from './features/statistics/StatsPage'
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
   MOCK_MEMBERS_VANILLE, MOCK_STATS_VANILLE,
@@ -105,12 +106,7 @@ function App() {
             {isMembersPage ? (
               <MembersPage server={selectedServer} />
             ) : (
-              <div className="flex flex-col items-center justify-center min-h-[50vh] text-[#8e7aab] space-y-4">
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-white mb-2">Dashbord du serveur {selectedServer.name}</h2>
-                  <p className="text-sm font-semibold">Cette page de dashbord n'est pas encore implémentée.</p>
-                </div>
-              </div>
+              <StatsPage server={selectedServer} />
             )}
           </div>
         </main>

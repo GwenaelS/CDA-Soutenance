@@ -32,6 +32,15 @@ export class BotService implements OnApplicationBootstrap, OnModuleDestroy {
 
     const token = this.config.get<string>('DISCORD_TOKEN');
     await this.client.login(token);
+    this.client.user?.setStatus('dnd');
+
+    this.client.user?.setPresence({
+      status: 'dnd',
+      activities: [{
+        name: '/help | Private bot',
+        type: 1
+      }]
+    });
   }
 
   // Deconnexion
