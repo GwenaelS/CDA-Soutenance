@@ -1,3 +1,19 @@
 // Les 16 entités typeorm
+// export * from "./name.entity";
 
-// export * from "./name.entity"
+export * from "./automatic-role.entity";
+export * from "./birthday.entity";
+export * from "./embed.entity";
+export * from "./exempted-role.entity";
+export * from "./filtered-word.entity";
+export * from "./guild-config.entity";
+export * from "./guild.entity";
+export * from "./level-config.entity";
+export * from "./level-reward.entity";
+export * from "./log-channel.entity";
+export * from "./log.entity";
+export * from "./member.entity";
+export * from "./moc-channel.entity";
+export * from "./mute.entity";
+export * from "./twitch.entity";
+export * from "./warning.entity";

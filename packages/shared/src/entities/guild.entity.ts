@@ -3,7 +3,6 @@ import { Guild_config } from "./guild-config.entity";
 import { Level_config } from "./level-config.entity";
 import { Level_reward } from "./level-reward.entity";
 import { Member } from "./member.entity";
-import { Logs } from "./logs.entity";
 import { Channel_log } from "./log-channel.entity";
 import { Filtered_word } from "./filtered-word.entity";
 import { Exempted_role } from "./exempted-role.entity";
@@ -11,12 +10,13 @@ import { Automatic_role } from "./automatic-role.entity";
 import { Moc_channel } from "./moc-channel.entity";
 import { Embed } from "./embed.entity";
 import { Twitch } from "./twitch.entity";
+import { Log } from "./log.entity";
 
 @Entity("guild")
 export class Guild {
   // Snowflake Discord = clé naturelle, fournie par Discord (pas auto-générée)
-  @PrimaryColumn({ type: "bigint" })
-  guild_id!: number;
+  @PrimaryColumn({ type: "bigint", unsigned: true })
+  guild_id!: string;
 
   @Column({ type: "varchar", length: 100 })
   guild_name!: string;
@@ -35,8 +35,8 @@ export class Guild {
   @OneToMany(() => Member, (member) => member.guild)
   members!: Member[];
 
-  @OneToMany(() => Logs, (log) => log.guild)
-  logs!: Logs[];
+  @OneToMany(() => Log, (log) => log.guild)
+  logs!: Log[];
 
   @OneToMany(() => Channel_log, (channelLog) => channelLog.guild)
   channelLogs!: Channel_log[];

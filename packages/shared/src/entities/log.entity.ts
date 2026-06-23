@@ -8,8 +8,8 @@ import {
 import { LogType } from "../enum";
 import { Guild } from "./guild.entity";
 
-@Entity("logs")
-export class Logs {
+@Entity("log")
+export class Log {
   @PrimaryGeneratedColumn()
   id!: number;
 

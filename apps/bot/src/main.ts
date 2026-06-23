@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.init();
+  const app = await NestFactory.createApplicationContext(AppModule);
+  app.enableShutdownHooks();
+  // await app.init();
 }
 bootstrap();
