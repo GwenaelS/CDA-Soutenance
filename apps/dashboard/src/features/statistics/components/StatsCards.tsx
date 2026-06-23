@@ -54,7 +54,7 @@ export function StatsCards({ server }: { server: DashboardServer }) {
               <span className="text-xs font-bold text-[#8e7aab] uppercase tracking-wider">{card.title}</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-extrabold text-white tracking-tight">{card.value.toLocaleString("fr-FR")}</h3>
+              <h3 className="text-3xl font-extrabold text-[#cfd9e8] tracking-tight">{card.value.toLocaleString("fr-FR")}</h3>
               <p className={`text-xs font-semibold mt-1 ${card.color}`}>{card.sub}</p>
             </div>
           </div>

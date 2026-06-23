@@ -42,7 +42,7 @@ export function MembersPage({ server }: { server: DashboardServer }) {
         <div>
           {/* a voir si on garde ----*/}
           <span className="text-[11px] font-bold text-[#8e7aab] tracking-widest uppercase">Général / Liste des membres</span>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mt-1">Liste des membres</h1>
+          <h1 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-1">Liste des membres</h1>
           {/* ---- a voir si on garde */}
           <p className="text-sm font-semibold text-[#8e7aab] mt-1.5">{stats.total.toLocaleString("fr-FR")} Membres dans le serveur <span className="text-[#25f8ff]">{server.name}</span></p>
         </div>
