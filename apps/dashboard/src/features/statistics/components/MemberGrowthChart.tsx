@@ -18,7 +18,7 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
 
   return (
     <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6">
-      <h2 className="text-lg font-bold text-white">Croissance des membres</h2>
+      <h2 className="text-lg font-bold text-[#cfd9e8]">Croissance des membres</h2>
       <p className="text-xs text-[#8e7aab] mt-0.5">12 derniers mois</p>
 
       <div className="mt-6 w-full overflow-x-auto">
@@ -39,13 +39,13 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
                   y1={getY(val)}
                   x2="980"
                   y2={getY(val)}
-                  className="stroke-[#3c096c]/40 stroke-1"
+                  className="stroke-[#fff]/80 stroke-1"
                 />
                 <text
                   x="50"
                   y={getY(val) + 4}
                   textAnchor="end"
-                  className="fill-[#8e7aab] text-[10px] font-medium"
+                  className="fill-[#e2e8f0] text-[13px] font-medium"
                 >
                   {val.toLocaleString("fr-FR")}
                 </text>
@@ -71,7 +71,7 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
                 x={getX(i)}
                 y="280"
                 textAnchor="middle"
-                className="fill-[#8e7aab] text-[11px] font-medium"
+                className="fill-[#e2e8f0] text-[13px] font-medium"
               >
                 {m}
               </text>

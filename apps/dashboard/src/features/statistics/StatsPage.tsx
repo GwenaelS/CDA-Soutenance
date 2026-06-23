@@ -7,7 +7,7 @@ export function StatsPage({ server }: { server: DashboardServer }) {
         <div className="space-y-6">
             <div>
                 <p className="text-xs font-bold text-[#8e7aab] uppercase tracking-wider">Général / Statistiques</p>
-                <h1 className="text-3xl font-extrabold text-white mt-1">Statistiques</h1>
+                <h1 className="text-3xl font-extrabold text-[#cfd9e8] mt-1">Statistiques</h1>
                 <p className="text-xs text-[#8e7aab] mt-1">Aperçu des 30 derniers jours</p>
             </div>
 
