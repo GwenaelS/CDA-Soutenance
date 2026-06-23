@@ -30,6 +30,8 @@
     "@nestjs/swagger": "^11.4.4",
     "@nestjs/typeorm": "^11.0.1",
     "@wystrelia/shared": "*",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "discord.js": "^14.26.4",
     "mysql2": "^3.22.5",
     "reflect-metadata": "^0.2.2",
