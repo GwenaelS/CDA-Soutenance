@@ -1,4 +1,4 @@
-import type { Member, ServerStats } from "@wystrelia/shared/types";
+import type { Member, ServerStats, FilterConfig, MemberRole } from "@wystrelia/shared/types";
 
 const getAvatar = (seed: string, type = 'bottts') =>
   `https://api.dicebear.com/7.x/${type}/svg?seed=${seed}`;
@@ -485,3 +485,82 @@ export const MOCK_MEMBERS_SIMPLON: Member[] = [
     isBooster: false
   }
 ];
+
+export const MOCK_ROLES_WYSTRELIA: MemberRole[] = [
+  { name: "Archimage", color: "#06b6d4" },
+  { name: "Gardien", color: "#a855f7" },
+  { name: "Enchantresse", color: "#ec4899" },
+  { name: "Aventurier", color: "#10b981" },
+  { name: "Apprenti", color: "#3b82f6" },
+  { name: "Admin", color: "#f43f5e" },
+  { name: "Staff", color: "#3b82f6" },
+  { name: "Modérateur", color: "#10b981" },
+  { name: "Helper", color: "#06b6d4" },
+  { name: "Booster", color: "#ec4899" },
+  { name: "Actif", color: "#a855f7" },
+  { name: "VIP", color: "#eab308" },
+  { name: "Membre", color: "#94a3b8" }
+];
+
+export const MOCK_FILTER_CONFIG_WYSTRELIA: FilterConfig = {
+  words: [
+    { word: "http://", addedAt: "20 avr. 2026" },
+    { word: "@everyone", addedAt: "10 mars 2026" },
+    { word: "arnaque", addedAt: "05 mars 2026" },
+    { word: "crypto pump", addedAt: "28 fév. 2026" },
+    { word: "invite.gg", addedAt: "10 janv. 2026" },
+    { word: "!!!!!", addedAt: "02 janv. 2026" }
+  ],
+  exemptedRoles: ["Archimage", "Gardien"]
+};
+
+export const MOCK_ROLES_VANILLE: MemberRole[] = [
+  { name: "Admin", color: "#f43f5e" },
+  { name: "Modérateur", color: "#10b981" },
+  { name: "Glacier", color: "#0ea5e9" },
+  { name: "Pâtissier", color: "#eab308" },
+  { name: "VIP", color: "#eab308" },
+  { name: "Membre", color: "#94a3b8" }
+];
+
+export const MOCK_FILTER_CONFIG_VANILLE: FilterConfig = {
+  words: [
+    { word: "chocolat industriel", addedAt: "15 juin 2025" },
+    { word: "mauvais goût", addedAt: "10 mai 2025" },
+    { word: "périmé", addedAt: "01 avr. 2025" }
+  ],
+  exemptedRoles: ["Admin", "Modérateur"]
+};
+
+export const MOCK_ROLES_DEV: MemberRole[] = [
+  { name: "Owner", color: "#ef4444" },
+  { name: "Dev", color: "#3b82f6" },
+  { name: "Modérateur", color: "#10b981" },
+  { name: "Stagiaire", color: "#f97316" }
+];
+
+export const MOCK_FILTER_CONFIG_DEV: FilterConfig = {
+  words: [
+    { word: "windows", addedAt: "18 déc. 2025" },
+    { word: "bug inprod", addedAt: "05 nov. 2025" },
+    { word: "urgent", addedAt: "12 oct. 2025" }
+  ],
+  exemptedRoles: ["Owner", "Dev"]
+};
+
+export const MOCK_ROLES_SIMPLON: MemberRole[] = [
+  { name: "Admin", color: "#f43f5e" },
+  { name: "Formateur", color: "#f97316" },
+  { name: "Apprenant", color: "#3b82f6" },
+  { name: "Bot", color: "#06b6d4" },
+  { name: "Tuteur", color: "#10b981" }
+];
+
+export const MOCK_FILTER_CONFIG_SIMPLON: FilterConfig = {
+  words: [
+    { word: "copier-coller", addedAt: "25 déc. 2025" },
+    { word: "retard", addedAt: "14 nov. 2025" },
+    { word: "chatgpt", addedAt: "30 oct. 2025" }
+  ],
+  exemptedRoles: ["Admin", "Formateur"]
+};

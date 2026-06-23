@@ -4,11 +4,16 @@ import ServerList from './layout/components/sidebar/sidebar'
 import type { DashboardServer } from '@wystrelia/shared/types'
 import { MembersPage } from './features/members/MembersPage'
 import { StatsPage } from './features/statistics/StatsPage'
+import { FilterwordPage } from './features/filter-word/FilterwordPage'
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
   MOCK_MEMBERS_VANILLE, MOCK_STATS_VANILLE,
   MOCK_MEMBERS_DEV, MOCK_STATS_DEV,
-  MOCK_MEMBERS_SIMPLON, MOCK_STATS_SIMPLON
+  MOCK_MEMBERS_SIMPLON, MOCK_STATS_SIMPLON,
+  MOCK_ROLES_WYSTRELIA, MOCK_FILTER_CONFIG_WYSTRELIA,
+  MOCK_ROLES_VANILLE, MOCK_FILTER_CONFIG_VANILLE,
+  MOCK_ROLES_DEV, MOCK_FILTER_CONFIG_DEV,
+  MOCK_ROLES_SIMPLON, MOCK_FILTER_CONFIG_SIMPLON
 } from './features/members/data/mockMembers'
 
 const FAKE_SERVERS: DashboardServer[] = [
@@ -19,7 +24,9 @@ const FAKE_SERVERS: DashboardServer[] = [
     gradient: "from-purple-600 to-indigo-600",
     isActive: true,
     members: MOCK_MEMBERS_WYSTRELIA,
-    stats: MOCK_STATS_WYSTRELIA
+    stats: MOCK_STATS_WYSTRELIA,
+    roles: MOCK_ROLES_WYSTRELIA,
+    filterConfig: MOCK_FILTER_CONFIG_WYSTRELIA
   },
   {
     id: 2,
@@ -28,7 +35,9 @@ const FAKE_SERVERS: DashboardServer[] = [
     gradient: "from-orange-500 to-pink-500",
     isActive: false,
     members: MOCK_MEMBERS_VANILLE,
-    stats: MOCK_STATS_VANILLE
+    stats: MOCK_STATS_VANILLE,
+    roles: MOCK_ROLES_VANILLE,
+    filterConfig: MOCK_FILTER_CONFIG_VANILLE
   },
   {
     id: 3,
@@ -37,7 +46,9 @@ const FAKE_SERVERS: DashboardServer[] = [
     gradient: "from-emerald-500 to-teal-600",
     isActive: false,
     members: MOCK_MEMBERS_DEV,
-    stats: MOCK_STATS_DEV
+    stats: MOCK_STATS_DEV,
+    roles: MOCK_ROLES_DEV,
+    filterConfig: MOCK_FILTER_CONFIG_DEV
   },
   {
     id: 4,
@@ -46,7 +57,9 @@ const FAKE_SERVERS: DashboardServer[] = [
     gradient: "from-red-500 to-amber-500",
     isActive: false,
     members: MOCK_MEMBERS_SIMPLON,
-    stats: MOCK_STATS_SIMPLON
+    stats: MOCK_STATS_SIMPLON,
+    roles: MOCK_ROLES_SIMPLON,
+    filterConfig: MOCK_FILTER_CONFIG_SIMPLON
   }
 ]
 
@@ -72,6 +85,7 @@ function App() {
   const parts = currentPath.split('/')
   const guildIdStr = parts[2]
   const isMembersPage = parts[3] === 'members'
+  const isFilterwordPage = parts[3] === 'filterword'
 
   useEffect(() => {
     const guildId = guildIdStr ? parseInt(guildIdStr) : 1
@@ -94,7 +108,7 @@ function App() {
           selectedServer={selectedServer}
           setSelectedServer={(server) => {
             setSelectedServer(server)
-            const suffix = isMembersPage ? '/members' : ''
+            const suffix = isMembersPage ? '/members' : isFilterwordPage ? '/filterword' : ''
             navigate(`/dashboard/${server.id}${suffix}`)
           }}
           servers={FAKE_SERVERS}
@@ -105,6 +119,8 @@ function App() {
           <div className="max-w-7xl mx-auto space-y-6">
             {isMembersPage ? (
               <MembersPage server={selectedServer} />
+            ) : isFilterwordPage ? (
+              <FilterwordPage server={selectedServer} />
             ) : (
               <StatsPage server={selectedServer} />
             )}

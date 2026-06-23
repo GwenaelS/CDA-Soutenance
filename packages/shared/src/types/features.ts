@@ -26,7 +26,36 @@ export interface ServerStats {
   boosters: number;
 }
 
+export interface FilterWord {
+  word: string;
+  addedAt: string;
+}
+
+export interface FilterConfig {
+  words: FilterWord[];
+  exemptedRoles: string[]; // Noms des rôles exemptés
+}
+
+export interface AddFilterWorlProps {
+  onAddWord: (work: string) => void;
+}
+
+export interface FilterWordListProps {
+  words: FilterWord[];
+  onDeleteWord: (word: string) => void;
+}
+
+
+export interface RoleExemptionProps {
+  serverRoles: MemberRole[];
+  exemptedRoles: string[];
+  onAddExemptedRole: (roleName: string) => void;
+  onRemoveExemptedRole: (roleName: string) => void;
+}
+
 export interface DashboardServer extends Server {
   members?: Member[];
   stats?: ServerStats;
+  roles?: MemberRole[];
+  filterConfig?: FilterConfig;
 }

@@ -72,7 +72,7 @@ export default function ServerList({
                                         onClick={() => {
                                             setSelectedServer(server);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : "";
+                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -129,7 +129,7 @@ export default function ServerList({
                                             setIsDropdownOpen(false);
                                             setIsOpen(false);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : "";
+                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -157,13 +157,18 @@ export default function ServerList({
                                     {category.links.map((link) => {
                                         const isMembersLink = link.name === "Liste des membres";
                                         const isStatsLink = link.name === "Statistiques";
+                                        const isFilterwordLink = link.name === "Mots-filtrés";
                                         const path = isMembersLink
                                             ? `/dashboard/${selectedServer.id}/members`
-                                            : `/dashboard/${selectedServer.id}`;
+                                            : isFilterwordLink
+                                                ? `/dashboard/${selectedServer.id}/filterword`
+                                                : `/dashboard/${selectedServer.id}`;
 
                                         const isActive = isMembersLink
                                             ? currentPath?.endsWith("/members")
-                                            : isStatsLink && currentPath?.startsWith("/dashboard/") && !currentPath?.endsWith("/members");
+                                            : isFilterwordLink
+                                                ? currentPath?.endsWith("/filterword")
+                                                : isStatsLink && currentPath?.startsWith("/dashboard/") && !currentPath?.endsWith("/members") && !currentPath?.endsWith("/filterword");
 
                                         return (
                                             <li key={link.name}>

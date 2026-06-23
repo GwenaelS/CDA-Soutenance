@@ -62,15 +62,15 @@ export function MembersPage({ server }: { server: DashboardServer }) {
 
       <div className="overflow-x-auto bg-[#140030]/50 backdrop-blur-md border border-border/40 rounded-xl overflow-hidden shadow-lg">
         <table className="min-w-full divide-y divide-border/20 text-left">
-          <thead className="bg-[#0c0020]/40 text-xs font-extrabold text-[#8e7aab] tracking-wider uppercase">
-            <tr>
-              <th className="px-6 py-4">Membre</th>
+          <thead className="bg-[#0c0020]/40 text-base font-extrabold text-[#8e7aab] tracking-wider uppercase">
+            <tr className="text-[#cfd9e8]">
+              <th className="px-6 py-4">Membres</th>
               <th className="px-6 py-4">Identifiant Discord</th>
               <th className="px-6 py-4">Rôles</th>
               <th className="px-6 py-4">Level</th>
               <th className="px-6 py-4">Rejoint</th>
               {/* a voir si on mais autres chose par la suite car cette version est une maquette */}
-              <th className="px-6 py-4 text-right">???</th>
+              <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/10">
