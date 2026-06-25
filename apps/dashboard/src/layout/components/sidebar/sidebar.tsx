@@ -95,7 +95,7 @@ export default function ServerList({
                     <div className="flex items-center justify-center gap-3 border-b border-border/20 pb-4">
                         <div className="relative flex flex-col items-center justify-center w-full">
                             <img src={selectedServer.icon} alt="" className="w-11 h-11 rounded-full bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-base shadow-md border border-border/30" />
-                            <p className="mt-3">
+                            <p className="mt-3 text-base">
                                 {selectedServer.name}
                             </p>
                         </div>
@@ -109,12 +109,12 @@ export default function ServerList({
                             <div className="flex items-center min-w-0">
                                 <img src={selectedServer.icon} alt={selectedServer.icon} className="w-10 h-10 rounded-lg bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-base shadow-md border border-border/30" />
                                 <div className="ml-2.5 min-w-0">
-                                    <p className="text-xs font-extrabold text-white truncate">{selectedServer.name}</p>
-                                    <p className="text-[9px] text-cyan-400 font-semibold tracking-wider uppercase mt-0.5">Serveur actif</p>
+                                    <p className="text-base font-extrabold text-white truncate">{selectedServer.name}</p>
+                                    <p className="text-base text-cyan-400 font-semibold tracking-wider uppercase mt-0.5">Serveur actif</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1 shrink-0 ml-1">
-                                <span className="px-1.5 py-0.5 text-[8px] border border-cyan-500/80 text-cyan-400 rounded bg-cyan-950/30 font-bold uppercase tracking-wider">Actif</span>
+                                <span className="px-1.5 py-0.5 text-base border border-cyan-500/80 text-cyan-400 rounded bg-cyan-950/30 font-bold uppercase tracking-wider">Actif</span>
                                 {isDropdownOpen ? <ChevronUp size={14} className="text-purple-400" /> : <ChevronDown size={14} className="text-purple-400" />}
                             </div>
                         </div>
@@ -138,7 +138,7 @@ export default function ServerList({
                                     >
                                         <div className="flex items-center min-w-0">
                                             <img src={server.icon} alt={server.icon} className="w-10 h-10 rounded-lg bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-base shadow-md border border-border/30" />
-                                            <span className="text-xs text-purple-100 font-semibold ml-2.5 truncate">{server.name}</span>
+                                            <span className="text-base text-purple-100 font-semibold ml-2.5 truncate">{server.name}</span>
                                         </div>
                                         {server.id === selectedServer.id && (
                                             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(0,237,245,0.8)]" />
@@ -152,7 +152,7 @@ export default function ServerList({
                     <div className="mt-8 space-y-6 flex-1">
                         {categories.map((category) => (
                             <div key={category.title} className="space-y-2.5">
-                                <p className="text-[10px] font-bold text-[#8e7aab] tracking-widest uppercase pl-1">{category.title}</p>
+                                <p className="text-base font-bold text-[#8e7aab] tracking-widest uppercase pl-1">{category.title}</p>
                                 <ul className="space-y-1 animate-fadeIn">
                                     {category.links.map((link) => {
                                         const isMembersLink = link.name === "Liste des membres";
@@ -178,7 +178,7 @@ export default function ServerList({
                                                         e.preventDefault();
                                                         if (onNavigate) onNavigate(path);
                                                     }}
-                                                    className={`flex items-center text-sm font-medium py-1.5 px-2.5 rounded-lg hover:bg-purple-950/10 group transition-all duration-200 ${isActive ? 'text-cyan-400 bg-purple-950/10' : 'text-[#dcb6fb] hover:text-cyan-400'
+                                                    className={`flex items-center text-base font-medium py-1.5 px-2.5 rounded-lg hover:bg-purple-950/10 group transition-all duration-200 ${isActive ? 'text-cyan-400 bg-purple-950/10' : 'text-[#dcb6fb] hover:text-cyan-400'
                                                         }`}
                                                 >
                                                     <span className={`w-1.5 h-1.5 rotate-45 transition-all duration-300 mr-3 inline-block shrink-0 ${isActive ? 'bg-[#00edf5] shadow-[0_0_8px_#00edf5]' : 'bg-[#8e7aab]/40 group-hover:bg-[#00edf5]'
