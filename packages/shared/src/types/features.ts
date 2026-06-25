@@ -53,9 +53,25 @@ export interface RoleExemptionProps {
   onRemoveExemptedRole: (roleName: string) => void;
 }
 
+export interface Warning {
+  id: string;
+  member: {
+    username: string;
+    displayName: string;
+    avatarUrl: string;
+  };
+  reason: string;
+  severity: "Avertissement" | "Muet" | "Expulsion";
+  moderator: string;
+  date: string;
+  status: "Actif" | "Expiré";
+}
+
 export interface DashboardServer extends Server {
   members?: Member[];
   stats?: ServerStats;
   roles?: MemberRole[];
   filterConfig?: FilterConfig;
+  warnings?: Warning[];
 }
+

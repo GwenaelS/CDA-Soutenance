@@ -1,4 +1,4 @@
-import type { Member, ServerStats, FilterConfig, MemberRole } from "@wystrelia/shared/types";
+import type { Member, ServerStats, FilterConfig, MemberRole, Warning } from "@wystrelia/shared/types";
 
 const getAvatar = (seed: string, type = 'bottts') =>
   `https://api.dicebear.com/7.x/${type}/svg?seed=${seed}`;
@@ -564,3 +564,122 @@ export const MOCK_FILTER_CONFIG_SIMPLON: FilterConfig = {
   ],
   exemptedRoles: ["Admin", "Formateur"]
 };
+
+
+
+export const MOCK_WARNINGS_WYSTRELIA: Warning[] = [
+  {
+    id: "1",
+    member: {
+      username: "Kaelis",
+      displayName: "@kaelis.fr",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=kaelis"
+    },
+    reason: "Langage inapproprié en #général",
+    severity: "Avertissement",
+    moderator: "Thornwick",
+    date: "10 juin 2026",
+    status: "Actif"
+  },
+  {
+    id: "2",
+    member: {
+      username: "Kaelis",
+      displayName: "@kaelis.fr",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=kaelis"
+    },
+    reason: "Spam répété en #annonces",
+    severity: "Muet",
+    moderator: "Ombrelys",
+    date: "05 juin 2026",
+    status: "Actif"
+  },
+  {
+    id: "3",
+    member: {
+      username: "Galadrin",
+      displayName: "@galadrin",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=galadrin"
+    },
+    reason: "Hors sujet persistant en #rp-libre",
+    severity: "Avertissement",
+    moderator: "Lyssandre",
+    date: "28 mai 2026",
+    status: "Expiré"
+  },
+  {
+    id: "4",
+    member: {
+      username: "Brumaire",
+      displayName: "@brumaire",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=brumaire"
+    },
+    reason: "Comportement irrespectueux envers un membre",
+    severity: "Avertissement",
+    moderator: "Thornwick",
+    date: "15 mai 2026",
+    status: "Actif"
+  },
+  {
+    id: "5",
+    member: {
+      username: "Kaelis",
+      displayName: "@kaelis.fr",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=kaelis"
+    },
+    reason: "Publicité non autorisée",
+    severity: "Expulsion",
+    moderator: "Lyssandre",
+    date: "02 mai 2026",
+    status: "Expiré"
+  }
+];
+
+export const MOCK_WARNINGS_VANILLE: Warning[] = [
+  {
+    id: "v1",
+    member: {
+      username: "Glacier_Fou",
+      displayName: "@glacier_fou",
+      avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=ice"
+    },
+    reason: "A vendu du chocolat chaud au lieu de glace",
+    severity: "Avertissement",
+    moderator: "Vanille_Chef",
+    date: "12 juin 2026",
+    status: "Actif"
+  }
+];
+
+export const MOCK_WARNINGS_DEV: Warning[] = [
+  {
+    id: "d1",
+    member: {
+      username: "Git_Master",
+      displayName: "@git_master",
+      avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=git"
+    },
+    reason: "Force push direct sur main sans PR",
+    severity: "Expulsion",
+    moderator: "Linus_T",
+    date: "20 juin 2026",
+    status: "Actif"
+  }
+];
+
+export const MOCK_WARNINGS_SIMPLON: Warning[] = [
+  {
+    id: "s1",
+    member: {
+      username: "Apprenant_Vite",
+      displayName: "@apprenant_vite",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=student"
+    },
+    reason: "Copier-coller de code non compris",
+    severity: "Muet",
+    moderator: "Simplon_Coach",
+    date: "14 juin 2026",
+    status: "Actif"
+  }
+];
+
