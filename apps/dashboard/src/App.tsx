@@ -6,7 +6,7 @@ import { MembersPage } from './features/members/MembersPage'
 import { StatsPage } from './features/statistics/StatsPage'
 import { FilterwordPage } from './features/filter-word/FilterwordPage'
 import { ModerationPage } from './features/moderation/ModerationPage'
-import { LogsPage } from './features/logs/logsPage'
+import { LogsPage } from './features/logs/LogsPage'
 
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,

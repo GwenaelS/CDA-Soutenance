@@ -690,20 +690,92 @@ export const MOCK_WARNINGS_SIMPLON: Warning[] = [
 export const MOCK_LOGS_WYSTRELIA: Log[] = [
   {
     id: "log_w1",
-    targetId: "kaelis",
-    authorId: "thornwick",
-    type: "WARN",
-    raison: "Langage inapproprié en #général",
-    datetime: "2026-06-10T14:30:00Z",
+    targetId: "Vaelora",
+    authorId: "",
+    type: "JOIN",
+    raison: "",
+    datetime: "2026-06-26T14:32:00Z",
     guildId: "wystrelia"
   },
   {
     id: "log_w2",
-    targetId: "kaelis",
-    authorId: "ombrelys",
-    type: "MUTE",
-    raison: "Spam répété en #annonces",
-    datetime: "2026-06-05T09:15:00Z",
+    targetId: "Kaelis",
+    authorId: "Ombrelys",
+    type: "DELETE",
+    raison: "#général",
+    datetime: "2026-06-26T13:18:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w3",
+    targetId: "Cendrelune",
+    authorId: "Lyssandre",
+    type: "ROLE_ADD",
+    raison: "Apprenti",
+    datetime: "2026-06-26T11:45:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w4",
+    targetId: "Brumaire",
+    authorId: "Thornwick",
+    type: "WARN",
+    raison: "comportement",
+    datetime: "2026-06-25T22:14:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w5",
+    targetId: "Cendrelune",
+    authorId: "",
+    type: "JOIN",
+    raison: "",
+    datetime: "2026-06-25T21:03:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w6",
+    targetId: "Aldrio",
+    authorId: "",
+    type: "LEAVE",
+    raison: "",
+    datetime: "2026-06-25T18:47:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w7",
+    targetId: "Nyssa",
+    authorId: "",
+    type: "BOOST",
+    raison: "Niveau 3 maintenu",
+    datetime: "2026-06-25T16:20:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w8",
+    targetId: "Galadrin",
+    authorId: "",
+    type: "EDIT",
+    raison: "#rp-taverne",
+    datetime: "2026-06-25T14:55:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w9",
+    targetId: "Thornwick",
+    authorId: "Lyssandre",
+    type: "ROLE_REMOVE",
+    raison: "Stagiaire",
+    datetime: "2026-06-10T17:30:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w10",
+    targetId: "Oberynn",
+    authorId: "Lyssandre",
+    type: "BAN",
+    raison: "spam massif",
+    datetime: "2026-06-08T11:20:00Z",
     guildId: "wystrelia"
   }
 ];
@@ -712,11 +784,20 @@ export const MOCK_LOGS_WYSTRELIA: Log[] = [
 export const MOCK_LOGS_VANILLE: Log[] = [
   {
     id: "log_v1",
-    targetId: "glacier_fou",
-    authorId: "vanille_chef",
+    targetId: "Glacier_Fou",
+    authorId: "Vanille_Chef",
     type: "WARN",
     raison: "A vendu du chocolat chaud au lieu de glace",
-    datetime: "2026-06-12T11:00:00Z",
+    datetime: "2026-06-26T11:00:00Z",
+    guildId: "vanille"
+  },
+  {
+    id: "log_v2",
+    targetId: "Chocochip",
+    authorId: "",
+    type: "JOIN",
+    raison: "",
+    datetime: "2026-06-25T09:15:00Z",
     guildId: "vanille"
   }
 ];
@@ -725,11 +806,20 @@ export const MOCK_LOGS_VANILLE: Log[] = [
 export const MOCK_LOGS_DEV: Log[] = [
   {
     id: "log_d1",
-    targetId: "git_master",
-    authorId: "linus_t",
+    targetId: "Git_Master",
+    authorId: "Linus_T",
     type: "BAN",
     raison: "Force push direct sur main sans PR",
-    datetime: "2026-06-20T16:45:00Z",
+    datetime: "2026-06-26T16:45:00Z",
+    guildId: "dev"
+  },
+  {
+    id: "log_d2",
+    targetId: "New_Dev",
+    authorId: "",
+    type: "JOIN",
+    raison: "",
+    datetime: "2026-06-25T10:00:00Z",
     guildId: "dev"
   }
 ];
@@ -738,11 +828,20 @@ export const MOCK_LOGS_DEV: Log[] = [
 export const MOCK_LOGS_SIMPLON: Log[] = [
   {
     id: "log_s1",
-    targetId: "apprenant_vite",
-    authorId: "simplon_coach",
+    targetId: "Apprenant_Vite",
+    authorId: "Simplon_Coach",
     type: "MUTE",
     raison: "Copier-coller de code non compris",
-    datetime: "2026-06-14T10:20:00Z",
+    datetime: "2026-06-26T10:20:00Z",
+    guildId: "simplon"
+  },
+  {
+    id: "log_s2",
+    targetId: "Simplon_Bot",
+    authorId: "",
+    type: "JOIN",
+    raison: "",
+    datetime: "2026-06-25T11:30:00Z",
     guildId: "simplon"
   }
 ];
