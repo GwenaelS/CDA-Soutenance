@@ -20,7 +20,17 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@wystrelia/shared": ["../../packages/shared/src/index.ts"],
+      "@wystrelia/shared/entities": ["../../packages/shared/src/entities/index.ts"],
+      "@wystrelia/shared/domain": ["../../packages/shared/src/domain/index.ts"],
+      "@wystrelia/shared/types": ["../../packages/shared/src/types/index.ts"],
+      "@wystrelia/shared/enums": ["../../packages/shared/src/enums/index.ts"]
+    }
   },
-  
+  "include": [
+    "src/**/*",
+    "../../packages/shared/src/**/*"
+  ]
 }

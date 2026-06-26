@@ -11,6 +11,14 @@
         "dev:shared": "npm run dev --workspace=@wystrelia/shared",
         "dev:api": "npm run start:dev --workspace=api",
         "dev:bot": "npm run start:dev --workspace=bot",
-        "dev:dashboard": "npm run dev --workspace=dashboard"
+        "dev:dashboard": "npm run dev --workspace=dashboard",
+        "build": "nest build",
+        "start": "nest start",
+        "test:bot": "jest --config apps/bot/test/jest.config.json",
+        "test:api": "jest --config apps/api/test/jest.config.json",
+        "test:all": "npm run test:bot && npm run test:api"
+    },
+    "devDependencies": {
+        "@types/jest": "^30.0.0"
     }
 }
