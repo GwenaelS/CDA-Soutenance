@@ -1,4 +1,4 @@
-import type { Member, ServerStats, FilterConfig, MemberRole, Warning } from "@wystrelia/shared/types";
+import type { Member, ServerStats, FilterConfig, MemberRole, Warning, Log } from "@wystrelia/shared/types";
 
 const getAvatar = (seed: string, type = 'bottts') =>
   `https://api.dicebear.com/7.x/${type}/svg?seed=${seed}`;
@@ -683,3 +683,66 @@ export const MOCK_WARNINGS_SIMPLON: Warning[] = [
   }
 ];
 
+
+
+
+// Logs pour Wystrelia
+export const MOCK_LOGS_WYSTRELIA: Log[] = [
+  {
+    id: "log_w1",
+    targetId: "kaelis",
+    authorId: "thornwick",
+    type: "WARN",
+    raison: "Langage inapproprié en #général",
+    datetime: "2026-06-10T14:30:00Z",
+    guildId: "wystrelia"
+  },
+  {
+    id: "log_w2",
+    targetId: "kaelis",
+    authorId: "ombrelys",
+    type: "MUTE",
+    raison: "Spam répété en #annonces",
+    datetime: "2026-06-05T09:15:00Z",
+    guildId: "wystrelia"
+  }
+];
+
+// Logs pour Vanille
+export const MOCK_LOGS_VANILLE: Log[] = [
+  {
+    id: "log_v1",
+    targetId: "glacier_fou",
+    authorId: "vanille_chef",
+    type: "WARN",
+    raison: "A vendu du chocolat chaud au lieu de glace",
+    datetime: "2026-06-12T11:00:00Z",
+    guildId: "vanille"
+  }
+];
+
+// Logs pour Dev
+export const MOCK_LOGS_DEV: Log[] = [
+  {
+    id: "log_d1",
+    targetId: "git_master",
+    authorId: "linus_t",
+    type: "BAN",
+    raison: "Force push direct sur main sans PR",
+    datetime: "2026-06-20T16:45:00Z",
+    guildId: "dev"
+  }
+];
+
+// Logs pour Simplon
+export const MOCK_LOGS_SIMPLON: Log[] = [
+  {
+    id: "log_s1",
+    targetId: "apprenant_vite",
+    authorId: "simplon_coach",
+    type: "MUTE",
+    raison: "Copier-coller de code non compris",
+    datetime: "2026-06-14T10:20:00Z",
+    guildId: "simplon"
+  }
+];

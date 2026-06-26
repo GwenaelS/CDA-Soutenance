@@ -6,6 +6,8 @@ import { MembersPage } from './features/members/MembersPage'
 import { StatsPage } from './features/statistics/StatsPage'
 import { FilterwordPage } from './features/filter-word/FilterwordPage'
 import { ModerationPage } from './features/moderation/ModerationPage'
+import { LogsPage } from './features/logs/logsPage'
+
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
   MOCK_MEMBERS_VANILLE, MOCK_STATS_VANILLE,
@@ -16,9 +18,10 @@ import {
   MOCK_ROLES_DEV, MOCK_FILTER_CONFIG_DEV,
   MOCK_ROLES_SIMPLON, MOCK_FILTER_CONFIG_SIMPLON,
   MOCK_WARNINGS_WYSTRELIA, MOCK_WARNINGS_VANILLE,
-  MOCK_WARNINGS_DEV, MOCK_WARNINGS_SIMPLON
+  MOCK_WARNINGS_DEV, MOCK_WARNINGS_SIMPLON,
+  MOCK_LOGS_WYSTRELIA, MOCK_LOGS_VANILLE,
+  MOCK_LOGS_DEV, MOCK_LOGS_SIMPLON
 } from './features/members/data/mockMembers'
-
 const FAKE_SERVERS: DashboardServer[] = [
   {
     id: 1,
@@ -30,7 +33,8 @@ const FAKE_SERVERS: DashboardServer[] = [
     stats: MOCK_STATS_WYSTRELIA,
     roles: MOCK_ROLES_WYSTRELIA,
     filterConfig: MOCK_FILTER_CONFIG_WYSTRELIA,
-    warnings: MOCK_WARNINGS_WYSTRELIA
+    warnings: MOCK_WARNINGS_WYSTRELIA,
+    logs: MOCK_LOGS_WYSTRELIA
   },
   {
     id: 2,
@@ -42,7 +46,8 @@ const FAKE_SERVERS: DashboardServer[] = [
     stats: MOCK_STATS_VANILLE,
     roles: MOCK_ROLES_VANILLE,
     filterConfig: MOCK_FILTER_CONFIG_VANILLE,
-    warnings: MOCK_WARNINGS_VANILLE
+    warnings: MOCK_WARNINGS_VANILLE,
+    logs: MOCK_LOGS_VANILLE
   },
   {
     id: 3,
@@ -54,7 +59,8 @@ const FAKE_SERVERS: DashboardServer[] = [
     stats: MOCK_STATS_DEV,
     roles: MOCK_ROLES_DEV,
     filterConfig: MOCK_FILTER_CONFIG_DEV,
-    warnings: MOCK_WARNINGS_DEV
+    warnings: MOCK_WARNINGS_DEV,
+    logs: MOCK_LOGS_DEV
   },
   {
     id: 4,
@@ -66,7 +72,8 @@ const FAKE_SERVERS: DashboardServer[] = [
     stats: MOCK_STATS_SIMPLON,
     roles: MOCK_ROLES_SIMPLON,
     filterConfig: MOCK_FILTER_CONFIG_SIMPLON,
-    warnings: MOCK_WARNINGS_SIMPLON
+    warnings: MOCK_WARNINGS_SIMPLON,
+    logs: MOCK_LOGS_SIMPLON
   }
 ]
 
@@ -94,6 +101,7 @@ function App() {
   const isMembersPage = parts[3] === 'members'
   const isFilterwordPage = parts[3] === 'filterword'
   const isWarningsPage = parts[3] === 'warnings'
+  const isLogsPage = parts[3] === 'logs'
 
   useEffect(() => {
     const guildId = guildIdStr ? parseInt(guildIdStr) : 1
@@ -116,7 +124,7 @@ function App() {
           selectedServer={selectedServer}
           setSelectedServer={(server) => {
             setSelectedServer(server)
-            const suffix = isMembersPage ? '/members' : isFilterwordPage ? '/filterword' : isWarningsPage ? '/warnings' : ''
+            const suffix = isMembersPage ? '/members' : isFilterwordPage ? '/filterword' : isWarningsPage ? '/warnings' : isLogsPage ? '/logs' : ''
             navigate(`/dashboard/${server.id}${suffix}`)
           }}
           servers={FAKE_SERVERS}
@@ -131,6 +139,8 @@ function App() {
               <FilterwordPage server={selectedServer} />
             ) : isWarningsPage ? (
               <ModerationPage server={selectedServer} />
+            ) : isLogsPage ? (
+              <LogsPage server={selectedServer} />
             ) : (
               <StatsPage server={selectedServer} />
             )}

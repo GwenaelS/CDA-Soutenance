@@ -67,11 +67,22 @@ export interface Warning {
   status: "Actif" | "Expiré";
 }
 
+export interface Log {
+  id: string;
+  targetId: string;
+  authorId: string;
+  type: string;
+  raison: string;
+  datetime: string;
+  guildId: string;
+}
+
 export interface DashboardServer extends Server {
   members?: Member[];
   stats?: ServerStats;
   roles?: MemberRole[];
   filterConfig?: FilterConfig;
   warnings?: Warning[];
+  logs?: Log[];
 }
 

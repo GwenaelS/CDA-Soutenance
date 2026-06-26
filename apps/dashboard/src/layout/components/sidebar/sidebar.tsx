@@ -72,7 +72,7 @@ export default function ServerList({
                                         onClick={() => {
                                             setSelectedServer(server);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : "";
+                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : currentPath?.endsWith("/logs") ? "/logs" : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -129,7 +129,7 @@ export default function ServerList({
                                             setIsDropdownOpen(false);
                                             setIsOpen(false);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : "";
+                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : currentPath?.endsWith("/logs") ? "/logs" : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -159,13 +159,16 @@ export default function ServerList({
                                         const isStatsLink = link.name === "Statistiques";
                                         const isFilterwordLink = link.name === "Mots-filtrés";
                                         const isWarningsLink = link.name === "Avertissements";
+                                        const isLogsLink = link.name === "Logs";
                                         const path = isMembersLink
                                             ? `/dashboard/${selectedServer.id}/members`
                                             : isFilterwordLink
                                                 ? `/dashboard/${selectedServer.id}/filterword`
                                                 : isWarningsLink
                                                     ? `/dashboard/${selectedServer.id}/warnings`
-                                                    : `/dashboard/${selectedServer.id}`;
+                                                    : isLogsLink
+                                                        ? `/dashboard/${selectedServer.id}/logs`
+                                                        : `/dashboard/${selectedServer.id}`;
 
                                         const isActive = isMembersLink
                                             ? currentPath?.endsWith("/members")
@@ -173,7 +176,9 @@ export default function ServerList({
                                                 ? currentPath?.endsWith("/filterword")
                                                 : isWarningsLink
                                                     ? currentPath?.endsWith("/warnings")
-                                                    : isStatsLink && currentPath?.startsWith("/dashboard/") && !currentPath?.endsWith("/members") && !currentPath?.endsWith("/filterword") && !currentPath?.endsWith("/warnings");
+                                                    : isLogsLink
+                                                        ? currentPath?.endsWith("/logs")
+                                                        : isStatsLink && currentPath?.startsWith("/dashboard/") && !currentPath?.endsWith("/members") && !currentPath?.endsWith("/filterword") && !currentPath?.endsWith("/warnings") && !currentPath?.endsWith("/logs");
 
                                         return (
                                             <li key={link.name}>
