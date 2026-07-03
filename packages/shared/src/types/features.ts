@@ -77,6 +77,20 @@ export interface Log {
   guildId: string;
 }
 
+export interface LevelingMilestone {
+  level: number;
+  roleName: string;
+  color: string;
+}
+
+export interface LevelingConfig {
+  maxLevel: number;
+  xpPerMsg: number;
+  xpPerMinVocal: number;
+  cooldown: number;
+  paliers: LevelingMilestone[];
+}
+
 export interface DashboardServer extends Server {
   members?: Member[];
   stats?: ServerStats;
@@ -84,5 +98,7 @@ export interface DashboardServer extends Server {
   filterConfig?: FilterConfig;
   warnings?: Warning[];
   logs?: Log[];
+  levelingConfig?: LevelingConfig;
 }
+
 

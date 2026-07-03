@@ -72,7 +72,17 @@ export default function ServerList({
                                         onClick={() => {
                                             setSelectedServer(server);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : currentPath?.endsWith("/logs") ? "/logs" : "";
+                                                const suffix = currentPath?.endsWith("/members")
+                                                    ? "/members"
+                                                    : currentPath?.endsWith("/filterword")
+                                                    ? "/filterword"
+                                                    : currentPath?.endsWith("/warnings")
+                                                    ? "/warnings"
+                                                    : currentPath?.endsWith("/logs")
+                                                    ? "/logs"
+                                                    : currentPath?.endsWith("/leveling")
+                                                    ? "/leveling"
+                                                    : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -129,7 +139,17 @@ export default function ServerList({
                                             setIsDropdownOpen(false);
                                             setIsOpen(false);
                                             if (onNavigate) {
-                                                const suffix = currentPath?.endsWith("/members") ? "/members" : currentPath?.endsWith("/filterword") ? "/filterword" : currentPath?.endsWith("/warnings") ? "/warnings" : currentPath?.endsWith("/logs") ? "/logs" : "";
+                                                const suffix = currentPath?.endsWith("/members")
+                                                    ? "/members"
+                                                    : currentPath?.endsWith("/filterword")
+                                                    ? "/filterword"
+                                                    : currentPath?.endsWith("/warnings")
+                                                    ? "/warnings"
+                                                    : currentPath?.endsWith("/logs")
+                                                    ? "/logs"
+                                                    : currentPath?.endsWith("/leveling")
+                                                    ? "/leveling"
+                                                    : "";
                                                 onNavigate(`/dashboard/${server.id}${suffix}`);
                                             }
                                         }}
@@ -160,25 +180,36 @@ export default function ServerList({
                                         const isFilterwordLink = link.name === "Mots-filtrés";
                                         const isWarningsLink = link.name === "Avertissements";
                                         const isLogsLink = link.name === "Logs";
+                                        const isLevelingLink = link.name === "Système d'expérience";
                                         const path = isMembersLink
                                             ? `/dashboard/${selectedServer.id}/members`
                                             : isFilterwordLink
-                                                ? `/dashboard/${selectedServer.id}/filterword`
-                                                : isWarningsLink
-                                                    ? `/dashboard/${selectedServer.id}/warnings`
-                                                    : isLogsLink
-                                                        ? `/dashboard/${selectedServer.id}/logs`
-                                                        : `/dashboard/${selectedServer.id}`;
+                                            ? `/dashboard/${selectedServer.id}/filterword`
+                                            : isWarningsLink
+                                            ? `/dashboard/${selectedServer.id}/warnings`
+                                            : isLogsLink
+                                            ? `/dashboard/${selectedServer.id}/logs`
+                                            : isLevelingLink
+                                            ? `/dashboard/${selectedServer.id}/leveling`
+                                            : `/dashboard/${selectedServer.id}`;
 
                                         const isActive = isMembersLink
                                             ? currentPath?.endsWith("/members")
                                             : isFilterwordLink
-                                                ? currentPath?.endsWith("/filterword")
-                                                : isWarningsLink
-                                                    ? currentPath?.endsWith("/warnings")
-                                                    : isLogsLink
-                                                        ? currentPath?.endsWith("/logs")
-                                                        : isStatsLink && currentPath?.startsWith("/dashboard/") && !currentPath?.endsWith("/members") && !currentPath?.endsWith("/filterword") && !currentPath?.endsWith("/warnings") && !currentPath?.endsWith("/logs");
+                                            ? currentPath?.endsWith("/filterword")
+                                            : isWarningsLink
+                                            ? currentPath?.endsWith("/warnings")
+                                            : isLogsLink
+                                            ? currentPath?.endsWith("/logs")
+                                            : isLevelingLink
+                                            ? currentPath?.endsWith("/leveling")
+                                            : isStatsLink &&
+                                              currentPath?.startsWith("/dashboard/") &&
+                                              !currentPath?.endsWith("/members") &&
+                                              !currentPath?.endsWith("/filterword") &&
+                                              !currentPath?.endsWith("/warnings") &&
+                                              !currentPath?.endsWith("/logs") &&
+                                              !currentPath?.endsWith("/leveling");
 
                                         return (
                                             <li key={link.name}>

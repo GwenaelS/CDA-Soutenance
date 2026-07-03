@@ -1,5 +1,10 @@
 import type { DashboardServer } from "@wystrelia/shared/types";
 
+interface XPCurveChartProps {
+  maxLevel: number;
+  server: DashboardServer;
+}
+
 const getGradientHex = (gradientClass: string) => {
   if (gradientClass.includes("purple")) return { from: "#9333ea", to: "#4f46e5", stroke: "#25f8ff" };
   if (gradientClass.includes("orange")) return { from: "#f97316", to: "#db2777", stroke: "#ec4899" };
@@ -8,27 +13,47 @@ const getGradientHex = (gradientClass: string) => {
   return { from: "#9333ea", to: "#4f46e5", stroke: "#25f8ff" };
 };
 
-export function MemberGrowthChart({ server }: { server: DashboardServer }) {
-  const stats = server.stats || { total: 0 };
+const getXpForLevel = (level: number) => {
+  return 5 * (level * level) + 50 * level + 100;
+};
+
+export function XPCurveChart({ maxLevel, server }: XPCurveChartProps) {
   const colors = getGradientHex(server.gradient || "");
-  const months = ["Juil", "Août", "Sep", "Oct", "Nov", "Dec", "Jan", "Fév", "Mar", "Avr", "Mai", "Jun"];
-  const growthFactors = [0.78, 0.82, 0.85, 0.87, 0.89, 0.91, 0.93, 0.95, 0.96, 0.97, 0.99, 1.0];
-  const points = growthFactors.map(f => Math.round(stats.total * f));
+  const pointCount = 8;
+  const levels = Array.from({ length: pointCount }, (_, i) => {
+    if (i === 0) return 1;
+    if (i === pointCount - 1) return maxLevel;
+    return Math.round(1 + (i / (pointCount - 1)) * (maxLevel - 1));
+  });
 
-  const minY = Math.round(stats.total * 0.75);
-  const maxY = Math.round(stats.total * 1.03);
+  const xpValues = levels.map(L => getXpForLevel(L));
+  const minXP = xpValues[0];
+  const maxXP = xpValues[xpValues.length - 1];
 
-  const getX = (index: number) => 60 + (index / 11) * 920;
+  const minY = Math.round(minXP * 0.75);
+  const maxY = Math.round(maxXP * 1.03);
+
+  const getX = (index: number) => 60 + (index / (pointCount - 1)) * 920;
   const getY = (v: number) => 240 - ((v - minY) / (maxY - (minY || 1))) * 240 + 20;
 
-  const pathData = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(p)}`).join(" ");
-  const areaPathData = `${pathData} L ${getX(11)} ${getY(minY)} L ${getX(0)} ${getY(minY)} Z`;
+  const pathData = xpValues.map((xp, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(xp)}`).join(" ");
+  const areaPathData = `${pathData} L ${getX(pointCount - 1)} ${getY(minY)} L ${getX(0)} ${getY(minY)} Z`;
   const gridValues = Array.from({ length: 6 }, (_, i) => Math.round(minY + ((maxY - minY) / 5) * i));
 
   return (
     <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6">
-      <h2 className="text-lg font-bold text-[#cfd9e8]">Croissance des membres</h2>
-      <p className="text-xs text-[#8e7aab] mt-0.5">12 derniers mois</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-lg font-bold text-[#cfd9e8]">Courbe d'expérience requise</h2>
+          <p className="text-xs text-[#8e7aab] mt-0.5 font-semibold">Progression de l'XP nécessaire selon le niveau (Niv. 1 à {maxLevel})</p>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-bold text-[#8e7aab] uppercase tracking-wider block">XP Finale</span>
+          <span className="text-lg font-black text-[#cfd9e8]" style={{ color: colors.stroke }}>
+            {maxXP.toLocaleString("fr-FR")} XP
+          </span>
+        </div>
+      </div>
 
       <div className="mt-6 w-full overflow-x-auto">
         <div className="min-w-[800px] h-[320px]">
@@ -63,18 +88,18 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
             <path d={areaPathData} fill="url(#chart-grad)" />
             <path d={pathData} fill="none" stroke={colors.stroke} strokeWidth={2} />
 
-            {points.map((p, i) => (
+            {xpValues.map((xp, i) => (
               <circle
                 key={i}
                 cx={getX(i)}
-                cy={getY(p)}
+                cy={getY(xp)}
                 r={4}
                 fill={colors.stroke}
                 className="stroke-[#0c0020] stroke-2"
               />
             ))}
 
-            {months.map((m, i) => (
+            {levels.map((lvl, i) => (
               <text
                 key={i}
                 x={getX(i)}
@@ -82,7 +107,7 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
                 textAnchor="middle"
                 className="fill-[#e2e8f0] text-[13px] font-medium"
               >
-                {m}
+                Niv. {lvl}
               </text>
             ))}
           </svg>

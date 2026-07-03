@@ -37,7 +37,6 @@ export function RoleExemptions({ serverRoles, exemptedRoles, onAddExemptedRole, 
                 </span>
             </div>
 
-            {/* Rôles exemptés */}
             <div className="flex flex-wrap gap-2">
                 {exemptedRolesData.length === 0 ? (
                     <p className="text-base text-[#8e7aab]/60 italic py-1">Aucun rôle n'est exempté pour le moment.</p>
@@ -65,7 +64,6 @@ export function RoleExemptions({ serverRoles, exemptedRoles, onAddExemptedRole, 
                 )}
             </div>
 
-            {/* Ajouter un rôle */}
             <div className="pt-4 border-t border-purple-500/10">
                 <span className="text-base font-bold text-[#8e7aab] uppercase tracking-wider block mb-3">
                     Ajouter un rôle
@@ -87,7 +85,7 @@ export function RoleExemptions({ serverRoles, exemptedRoles, onAddExemptedRole, 
                         </button>
 
                         {isDropdownOpen && (
-                            <div className="absolute left-0 mt-2 w-64 bg-[#0d0221] border border-purple-500/20 rounded-xl shadow-2xl py-1.5 z-50 max-h-60 overflow-y-auto divide-y divide-purple-500/10 backdrop-blur-md">
+                            <div className="absolute left-0 bottom-full mb-2 w-64 bg-[#0d0221] border border-purple-500/20 rounded-xl shadow-2xl py-1.5 z-50 max-h-60 overflow-y-auto divide-y divide-purple-500/10 backdrop-blur-md">
                                 {availableRoles.map((role) => (
                                     <button
                                         key={role.name}

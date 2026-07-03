@@ -1,4 +1,4 @@
-import type { Member, ServerStats, FilterConfig, MemberRole, Warning, Log } from "@wystrelia/shared/types";
+import type { Member, ServerStats, FilterConfig, MemberRole, Warning, Log, LevelingConfig } from "@wystrelia/shared/types";
 
 const getAvatar = (seed: string, type = 'bottts') =>
   `https://api.dicebear.com/7.x/${type}/svg?seed=${seed}`;
@@ -845,3 +845,50 @@ export const MOCK_LOGS_SIMPLON: Log[] = [
     guildId: "simplon"
   }
 ];
+
+export const MOCK_LEVELING_WYSTRELIA: LevelingConfig = {
+  maxLevel: 100,
+  xpPerMsg: 15,
+  xpPerMinVocal: 8,
+  cooldown: 60,
+  paliers: [
+    { level: 10, roleName: "Initié", color: "#25f8ff" },
+    { level: 25, roleName: "Aventurier", color: "#c084fc" },
+    { level: 50, roleName: "Chevalier", color: "#fde047" }
+  ]
+};
+
+export const MOCK_LEVELING_VANILLE: LevelingConfig = {
+  maxLevel: 80,
+  xpPerMsg: 10,
+  xpPerMinVocal: 5,
+  cooldown: 30,
+  paliers: [
+    { level: 15, roleName: "Glacier Débutant", color: "#c084fc" },
+    { level: 40, roleName: "Pâtissier Pro", color: "#fb923c" }
+  ]
+};
+
+export const MOCK_LEVELING_DEV: LevelingConfig = {
+  maxLevel: 100,
+  xpPerMsg: 25,
+  xpPerMinVocal: 12,
+  cooldown: 45,
+  paliers: [
+    { level: 10, roleName: "Junior", color: "#25f8ff" },
+    { level: 42, roleName: "Senior", color: "#fb923c" },
+    { level: 80, roleName: "Lead Dev", color: "#f472b6" }
+  ]
+};
+
+export const MOCK_LEVELING_SIMPLON: LevelingConfig = {
+  maxLevel: 100,
+  xpPerMsg: 20,
+  xpPerMinVocal: 10,
+  cooldown: 60,
+  paliers: [
+    { level: 12, roleName: "Apprenant Curieux", color: "#c084fc" },
+    { level: 30, roleName: "Développeur Autonome", color: "#25f8ff" },
+    { level: 75, roleName: "Mentor", color: "#fb923c" }
+  ]
+};
