@@ -8,6 +8,7 @@ import { FilterwordPage } from './features/filter-word/FilterwordPage'
 import { ModerationPage } from './features/moderation/ModerationPage'
 import { LogsPage } from './features/logs/LogsPage'
 import { LevelingPage } from './features/leveling/LevelingPage'
+import { LoginPage } from './features/auth/LoginPage'
 
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
@@ -122,6 +123,10 @@ function App() {
   const navigate = (to: string) => {
     window.history.pushState({}, '', to)
     setCurrentPath(to)
+  }
+
+  if (currentPath === '/login') {
+    return <LoginPage />
   }
 
   return (
