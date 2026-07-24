@@ -1,0 +1,94 @@
+========================================
+JOURNAL DE SESSION — 2026-07-17
+Suite de api-roadmap.txt
+========================================
+
+Ce fichier récapitule la session de debug/review qui a suivi la roadmap
+initiale (api-roadmap.txt). Objectif : garder une trace de ce qui a été
+vérifié, cassé, corrigé, et de ce qui reste ouvert.
+
+
+========================================
+REVUE PHASE 1 — L'API démarre et se connecte à la base
+========================================
+
+Ce qui a été vérifié comme correct :
+- main.ts, app.module.ts (puis database/database.module.ts après
+  réorganisation) : connexion TypeORM/MySQL fonctionnelle.
+- Le déplacement de la config DB dans src/database/ (database.module.ts +
+  data-source.ts + migrations/.keep) est correct et compile proprement.
+
+Bugs trouvés et CORRIGÉS pendant la session :
+1. package.json : "typeorm": "^1.0.0" était une version fantôme/abandonnée
+   de 2016, incompatible avec @nestjs/typeorm@11 (qui attend du 0.3.x).
+   -> Corrigé en "^0.3.20" par l'utilisateur, puis npm install relancé
+      à la racine du repo (workspace npm).
+2. tsconfig.json : "baseUrl": "./" provoquait une erreur bloquante TS5101
+   sous TypeScript 6 (baseUrl déprécié sans "paths" associé).
+   -> Ligne supprimée.
+3. tsconfig.json : absence de "rootDir" explicite provoquait TS5011
+   ("The common source directory ... rootDir must be explicitly set")
+   lors d'un vrai build (tsconfig.build.json émet réellement, contrairement
+   à un tsc --noEmit qui masquait le problème).
+   -> Ajouté : "rootDir": "./src"
+4. Fichier tsconfig.build.tsbuildinfo périmé (généré avant le fix rootDir)
+   qui trompait le compilateur incrémental : celui-ci pensait que rien
+   n'avait changé et n'écrivait plus rien dans dist/, alors que
+   nest-cli.json (deleteOutDir: true) supprimait dist/ à chaque build.
+   Résultat observé : "Found 0 errors" mais dist/main introuvable au
+   lancement -> Error: Cannot find module '.../dist/main'.
+   -> Fichier .tsbuildinfo supprimé pour forcer un rebuild propre.
+   -> *.tsbuildinfo ajouté au .gitignore racine (n'existait pas avant).
+
+Résultat final : npm run dev:api démarre proprement, DB connectée,
+routes filtered-word mappées, "Nest application successfully started".
+
+Points ouverts, PAS corrigés, à trancher plus tard :
+- Pas de CORS configuré dans main.ts. Deviendra nécessaire dès la Phase 3
+  car le dashboard (DASHBOARD_URL=http://localhost:5173) est sur une autre
+  origine et le JWT passera par cookie httpOnly -> il faudra
+  app.enableCors({ origin: DASHBOARD_URL, credentials: true }).
+- data-source.ts (dans database/) n'a plus son "import 'dotenv/config'"
+  d'origine, et "dotenv" n'est plus dans les dépendances. Sans conséquence
+  tant que synchronize: true est utilisé, mais bloquant le jour où les
+  commandes migration:generate / migration:run seront utilisées (elles
+  tournent hors du bootstrap Nest, donc hors ConfigModule).
+
+
+========================================
+REVUE PHASE 2 — Module filtered-word (gabarit)
+========================================
+
+Ce qui fonctionne : CRUD complet (GET, GET :id, PATCH, POST, DELETE),
+validation via class-validator, DTO avec PartialType pour l'update.
+Va au-delà du plan initial (qui ne prévoyait que GET/POST/DELETE) --
+bon gabarit pour la Phase 4. Nommage corrigé (FilteredWordModule) et
+bug 404 corrigé (findOneBy + NotFoundException) le 2026-07-24.
+
+Reste à trancher :
+1. Convention de route : la roadmap prévoit des routes imbriquées type
+   GET /guilds/:guildId/members, mais filtered-word fait l'inverse
+   (guild_id est un champ du body du DTO, pas un paramètre d'URL).
+   A choisir avant de répliquer le pattern sur toute la Phase 4.
+
+
+========================================
+ETAT DES LIEUX GLOBAL (fin de session)
+========================================
+
+Phase 1  -> FAIT, vérifié en conditions réelles (npm run dev:api OK)
+Phase 2  -> FAIT (module filtered-word complet, un seul point ouvert : convention de route)
+Phase 3  -> DEMARREE, embryonnaire :
+            - modules/auth/ a sa structure de fichiers
+            - auth.module.ts : squelette seulement (JwtModule importé,
+              pas configuré avec registerAsync/secret)
+            - auth.controller.ts et auth.service.ts : fichiers VIDES
+            - AuthModule n'est pas encore enregistré dans app.module.ts
+            - pas de dossier guards/ créé
+            Voir le fichier phase3-auth-guide.txt pour le détail
+            étape par étape de ce qu'il reste à coder.
+Phase 4  -> PAS COMMENCEE (tous les dossiers n'ont qu'un .keep)
+
+
+Prochaine étape concrète : reprendre phase3-auth-guide.txt et coder
+l'auth Discord OAuth2 + JWT + Guards à la main, étape par étape.

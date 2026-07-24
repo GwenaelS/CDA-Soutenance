@@ -9,4 +9,4 @@ import { FilteredWordService } from './filtered-word.service';
   controllers: [FilteredWordController],
   providers: [FilteredWordService],
 })
-export class FilteringModule {}
+export class FilteredWordModule {}

@@ -1,8 +1,37 @@
+# Structure Globale
+
+```
+CDA-SOUTENANCE/
+│
+├── apps/
+│   │
+│   ├── api/
+│   ├── bot/
+│   └── dashboard/
+│
+├── docs/
+├── openspec/
+│
+├── packages/
+│   └── shared/
+│       ├── package.json
+│       └── tsconfig.json
+│
+├── .gitignore
+├── package-lock.json
+├── package.json
+├── README.md
+└── tsconfig.base.json
+```
+
 # Structure Shared
+
 C'est ici que vivent les briques utilisées par plusieurs applications. C'est ce qui justifie tout le choix d'archi.
+
 ```
 packages/shared/
 │
+├── dist/
 ├── src/
 │   │
 │   ├── entities/                  # entities TypeORM — importées par api ET bot
@@ -46,8 +75,10 @@ packages/shared/
 └── tsconfig.json
 ```
 
-# Structure back :
+# Structure Back
+
 Conséquence directe : les modules de l'API n'ont plus de dossier entities/ (il est dans shared). Ils gardent leurs DTO, parce qu'un DTO porte la validation HTTP (décorateurs class-validator) — c'est une préoccupation de la couche présentation, pas une donnée partagée.
+
 ```
 api/
 │
@@ -110,13 +141,15 @@ api/
 ├── .env / .env.sample / .gitignore
 ├── .prettierrc / .eslintrc.js
 ├── nest-cli.json
-├── package.json / package-lock.json
+├── package.json
 ├── README.md
 └── tsconfig.json / tsconfig.build.json
 ```
 
 # Structure Bot
+
 Le bot est lui aussi une application NestJS, mais organisée autour de l'écoute d'événements et des tâches planifiées, pas de routes HTTP. Il importe les entities et la logique de shared, et possède sa propre connexion TypeORM.
+
 ```
 bot/
 │
@@ -133,7 +166,7 @@ bot/
 │   │   └── discord.service.ts         # connexion à la Gateway, gestion du client
 │   │
 │   ├── events/                    # réactions aux événements Discord
-│   │   ├── message-create.listener.ts     # → XP + auto-modération + filtrage
+│   │   ├── message-create.listener.ts     # → filtrage + auto-modération + XP
 │   │   ├── voice-state.listener.ts        # → XP vocal (~10 XP/min)
 │   │   ├── member-add.listener.ts         # → onboarding + rôles de bienvenue
 │   │   └── member-remove.listener.ts      # → left_at sur MEMBER
@@ -155,17 +188,20 @@ bot/
 ├── .env / .env.sample / .gitignore
 ├── .prettierrc / .eslintrc.js
 ├── nest-cli.json
-├── package.json / package-lock.json
+├── package.json
 ├── README.md
 └── tsconfig.json / tsconfig.build.json
 ```
 
 # Structure Front
+
 J'ai retiré le types/ local (il est dans shared maintenant) et ajouté la plomberie manquante : client API, contextes, routes, hooks.
+
 ```
 dashboard/
 │
 ├── public/
+├── dist/
 ├── node_modules/
 │
 ├── src/
@@ -221,7 +257,7 @@ dashboard/
 ├── index.html
 ├── tailwind.config.js
 ├── postcss.config.js
-├── package.json / package-lock.json
+├── package.json
 ├── README.md
 ├── vite.config.ts
 └── tsconfig.json / tsconfig.app.json / tsconfig.node.json

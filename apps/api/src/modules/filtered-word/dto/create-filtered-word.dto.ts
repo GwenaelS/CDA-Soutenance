@@ -5,11 +5,4 @@ export class CreateFilteredWordDto {
   @IsNotEmpty()
   @MaxLength(255)
   word!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/^\d{17,20}$/, {
-    message: 'guild_id doit être un snowflake Discord valide',
-  })
-  guild_id!: string;
 }

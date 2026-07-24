@@ -1,0 +1,131 @@
+========================================
+QUESTION
+========================================
+
+Non je veux dire vraiment par du principe qu'il n'y a rien du tout aucun code rien
+je veux être sur d'être sur la bonne route et de comprendre, et je suis plus sur de
+cela depuis longtemps sur le projet alors je repars de 0
+
+
+========================================
+RÉPONSE
+========================================
+
+Le concept NestJS en 2 minutes
+-------------------------------
+
+Une API NestJS c'est une hiérarchie de modules. Chaque module est une boîte qui contient :
+- un Controller — reçoit les requêtes HTTP (GET /members, POST /guilds...)
+- un Service — fait le vrai travail (lire/écrire en base, logique métier)
+- des DTOs — valident les données qui arrivent dans le body d'une requête
+
+Tout ça est branché à un module racine (AppModule) qui démarre l'application. C'est tout.
+
+AppModule
+  ├── TypeORM (connexion base de données)
+  ├── AuthModule
+  ├── GuildModule
+  ├── MembersModule
+  └── ... (un module par fonctionnalité)
+
+
+========================================
+LA LISTE COMPLÈTE DANS L'ORDRE
+========================================
+
+PHASE 1 — L'application démarre et se connecte à la base
+----------------------------------------------------------
+
+Ce qu'il faut :
+
+1. main.ts — point d'entrée, lance le serveur sur un port
+2. app.module.ts — module racine qui configure la connexion MySQL via TypeORM
+3. Une base de données MySQL qui existe (juste CREATE DATABASE wystrelia; dans MySQL)
+4. Un fichier .env avec les credentials de la base
+
+Résultat attendu : npm run start:dev boot sans erreur, TypeORM crée automatiquement
+toutes les tables (avec synchronize: true pendant le développement).
+
+
+PHASE 2 — Un premier module pour comprendre le pattern
+-------------------------------------------------------
+
+Ce qu'il faut créer dans src/modules/filtered-word/ :
+
+5.  filtered-word.module.ts     — déclare le module, importe l'entité TypeORM
+6.  filtered-word.service.ts    — méthodes findAll(), create(), delete()
+7.  filtered-word.controller.ts — routes GET /filtered-words, POST /filtered-words, DELETE /filtered-words/:id
+8.  dto/create-filtered-word.dto.ts — valide que le body contient word (string non vide)
+9.  Enregistrer le module dans app.module.ts
+
+Résultat attendu : tu peux appeler GET http://localhost:3000/filtered-words
+et obtenir une liste vide [].
+
+Ce module te sert de modèle. Tous les suivants ont exactement la même structure.
+
+
+PHASE 3 — L'authentification (le plus complexe)
+------------------------------------------------
+
+C'est le verrou. Sans ça, n'importe qui peut appeler l'API.
+
+Ce qu'il faut créer dans src/modules/auth/ :
+
+10. Installer @nestjs/jwt et cookie-parser
+11. auth.module.ts     — importe JwtModule avec le secret depuis .env
+12. auth.service.ts    — contient toute la logique OAuth2 Discord :
+                          - appeler Discord pour récupérer les infos de l'utilisateur
+                          - vérifier qu'il a la permission MANAGE_GUILD sur au moins un serveur
+                          - générer un JWT et le mettre dans un cookie
+13. auth.controller.ts — 4 routes :
+                          GET  /auth/discord          → redirige vers Discord pour se connecter
+                          GET  /auth/discord/callback → Discord rappelle ici après connexion
+                          POST /auth/logout           → efface le cookie
+                          GET  /auth/me               → retourne qui est connecté
+14. guards/jwt.guard.ts   — vérifie que le cookie JWT est présent et valide
+15. guards/guild.guard.ts — vérifie que l'utilisateur a le droit d'accéder au guild demandé dans l'URL
+
+Résultat attendu : tu peux te connecter via Discord et obtenir un cookie JWT.
+Toutes les routes suivantes utiliseront ce guard.
+
+
+PHASE 4 — Les modules métier (même pattern à chaque fois)
+----------------------------------------------------------
+
+À partir d'ici c'est mécanique.
+Chaque module = copier la structure de filtered-word et adapter.
+
+Dans cet ordre :
+
+16. guilds        → GET /guilds/:guildId
+                    Retourne les infos d'un serveur Discord
+
+17. members       → GET /guilds/:guildId/members
+                    Liste les membres du serveur
+
+18. logs          → GET /guilds/:guildId/logs
+                    Historique de modération, trié par date
+
+19. guild-config  → GET/PATCH /guilds/:guildId/config
+                    Paramètres du bot (salon de logs, bienvenue...)
+
+20. exempted-roles → GET/POST/DELETE /guilds/:guildId/exempted-roles
+
+21. leveling      → GET/PATCH /guilds/:guildId/leveling/config
+                    + GET /guilds/:guildId/leveling/leaderboard
+
+22. moderation    → GET/POST/DELETE /guilds/:guildId/warnings
+
+23. embeds, birthdays, moc — si le temps le permet
+
+Chaque module doit avoir les guards de la Phase 3 appliqués.
+
+
+========================================
+RÉCAPITULATIF VISUEL
+========================================
+
+Phase 1  → L'API démarre + DB connectée          (main.ts, app.module.ts)
+Phase 2  → Un module fonctionnel                  (filtered-word : CRUD complet)
+Phase 3  → Auth Discord + JWT + Guards            (login, cookie, protection des routes)
+Phase 4  → Modules métier un par un               (guild, members, logs, config...)
