@@ -13,8 +13,9 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
+    "rootDir": "./src",
+    // M'a crée un fichier cache qui invalide défois ce que je fais
+    "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,

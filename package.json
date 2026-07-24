@@ -8,17 +8,17 @@
     ],
     "scripts": {
         "build:shared": "npm run build --workspace=@wystrelia/shared",
+        "build:api": "npm run build --workspace=api",
+        "build:bot": "npm run build --workspace=bot",
+        "build:dashboard": "npm run build --workspace=dashboard",
+        "build": "npm run build:shared && npm run build:api && npm run build:bot && npm run build:dashboard",
+        "lint": "npm run lint --workspaces --if-present",
         "dev:shared": "npm run dev --workspace=@wystrelia/shared",
         "dev:api": "npm run start:dev --workspace=api",
         "dev:bot": "npm run start:dev --workspace=bot",
         "dev:dashboard": "npm run dev --workspace=dashboard",
-        "build": "nest build",
-        "start": "nest start",
-        "test:bot": "jest --config apps/bot/test/jest.config.json",
-        "test:api": "jest --config apps/api/test/jest.config.json",
-        "test:all": "npm run test:bot && npm run test:api"
-    },
-    "devDependencies": {
-        "@types/jest": "^30.0.0"
+        "test:api": "npm run test --workspace=api",
+        "test:bot": "npm run test --workspace=bot",
+        "test": "npm run test test:api && npm run test:bot"
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Filtered_word } from '@wystrelia/shared';
 import { Repository } from 'typeorm';
@@ -12,26 +12,48 @@ export class FilteredWordService {
     private readonly filteredWordRepository: Repository<Filtered_word>,
   ) {}
 
-  findAll(): Promise<Filtered_word[]> {
-    return this.filteredWordRepository.find();
+  // Method that return all forbidden words
+  findAll(guildId: string): Promise<Filtered_word[]> {
+    return this.filteredWordRepository.find({
+      where: { guild: { guild_id: guildId } },
+    });
   }
 
-  findOne(id: number): Promise<Filtered_word> {
-    return this.filteredWordRepository.findOneByOrFail({ id });
+  // Method that return a forbidden word by an id
+  async findOne(guildId: string, id: number): Promise<Filtered_word> {
+    const word = await this.filteredWordRepository.findOneBy({
+      id,
+      guild: { guild_id: guildId },
+    });
+    if (!word) {
+      throw new NotFoundException(`Filtered word ${id} not found`);
+    }
+    return word;
   }
 
-  async update(id: number, dto: UpdateFilteredWordDto): Promise<Filtered_word> {
+  // Method that update a forbidden word by an id
+  async update(
+    guildId: string,
+    id: number,
+    dto: UpdateFilteredWordDto,
+  ): Promise<Filtered_word> {
+    await this.findOne(guildId, id);
     await this.filteredWordRepository.update(id, dto);
-    return this.findOne(id);
+    return this.findOne(guildId, id);
   }
 
-  create(dto: CreateFilteredWordDto): Promise<Filtered_word> {
-    const word = this.filteredWordRepository.create(dto);
+  // Method that create a new forbidden word
+  create(guildId: string, dto: CreateFilteredWordDto): Promise<Filtered_word> {
+    const word = this.filteredWordRepository.create({
+      ...dto,
+      guild: { guild_id: guildId },
+    });
     return this.filteredWordRepository.save(word);
   }
 
-  async delete(id: number): Promise<void> {
-    const word = await this.findOne(id);
+  // Method that delete a forbidden word by an id
+  async delete(guildId: string, id: number): Promise<void> {
+    const word = await this.findOne(guildId, id);
     await this.filteredWordRepository.remove(word);
   }
 }
