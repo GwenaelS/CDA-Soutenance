@@ -7,12 +7,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateFilteredWordDto } from './dto/create-filtered-word.dto';
 import { FilteredWordService } from './filtered-word.service';
 import { UpdateFilteredWordDto } from './dto/update-filtered-word.dto';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { GuildGuard } from '../auth/guards/guild.guard';
 
 @Controller('guilds/:guildId/filtered-words')
+@UseGuards(JwtGuard, GuildGuard)
 export class FilteredWordController {
   constructor(private readonly filteredWordService: FilteredWordService) {}
 

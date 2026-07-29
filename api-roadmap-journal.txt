@@ -1,94 +1,239 @@
 ========================================
-JOURNAL DE SESSION — 2026-07-17
-Suite de api-roadmap.txt
+JOURNAL DE SESSION — 2026-07-29
+Suite de api-roadmap.txt et phase3-auth-guide.txt
 ========================================
 
-Ce fichier récapitule la session de debug/review qui a suivi la roadmap
-initiale (api-roadmap.txt). Objectif : garder une trace de ce qui a été
-vérifié, cassé, corrigé, et de ce qui reste ouvert.
-
-
-========================================
-REVUE PHASE 1 — L'API démarre et se connecte à la base
-========================================
-
-Ce qui a été vérifié comme correct :
-- main.ts, app.module.ts (puis database/database.module.ts après
-  réorganisation) : connexion TypeORM/MySQL fonctionnelle.
-- Le déplacement de la config DB dans src/database/ (database.module.ts +
-  data-source.ts + migrations/.keep) est correct et compile proprement.
-
-Bugs trouvés et CORRIGÉS pendant la session :
-1. package.json : "typeorm": "^1.0.0" était une version fantôme/abandonnée
-   de 2016, incompatible avec @nestjs/typeorm@11 (qui attend du 0.3.x).
-   -> Corrigé en "^0.3.20" par l'utilisateur, puis npm install relancé
-      à la racine du repo (workspace npm).
-2. tsconfig.json : "baseUrl": "./" provoquait une erreur bloquante TS5101
-   sous TypeScript 6 (baseUrl déprécié sans "paths" associé).
-   -> Ligne supprimée.
-3. tsconfig.json : absence de "rootDir" explicite provoquait TS5011
-   ("The common source directory ... rootDir must be explicitly set")
-   lors d'un vrai build (tsconfig.build.json émet réellement, contrairement
-   à un tsc --noEmit qui masquait le problème).
-   -> Ajouté : "rootDir": "./src"
-4. Fichier tsconfig.build.tsbuildinfo périmé (généré avant le fix rootDir)
-   qui trompait le compilateur incrémental : celui-ci pensait que rien
-   n'avait changé et n'écrivait plus rien dans dist/, alors que
-   nest-cli.json (deleteOutDir: true) supprimait dist/ à chaque build.
-   Résultat observé : "Found 0 errors" mais dist/main introuvable au
-   lancement -> Error: Cannot find module '.../dist/main'.
-   -> Fichier .tsbuildinfo supprimé pour forcer un rebuild propre.
-   -> *.tsbuildinfo ajouté au .gitignore racine (n'existait pas avant).
-
-Résultat final : npm run dev:api démarre proprement, DB connectée,
-routes filtered-word mappées, "Nest application successfully started".
-
-Points ouverts, PAS corrigés, à trancher plus tard :
-- Pas de CORS configuré dans main.ts. Deviendra nécessaire dès la Phase 3
-  car le dashboard (DASHBOARD_URL=http://localhost:5173) est sur une autre
-  origine et le JWT passera par cookie httpOnly -> il faudra
-  app.enableCors({ origin: DASHBOARD_URL, credentials: true }).
-- data-source.ts (dans database/) n'a plus son "import 'dotenv/config'"
-  d'origine, et "dotenv" n'est plus dans les dépendances. Sans conséquence
-  tant que synchronize: true est utilisé, mais bloquant le jour où les
-  commandes migration:generate / migration:run seront utilisées (elles
-  tournent hors du bootstrap Nest, donc hors ConfigModule).
+Ce fichier reprend le fil après la session du 2026-07-24. Rappel du
+fonctionnement de cette collaboration : l'utilisateur écrit tout le code
+lui-même. L'assistant explique le concept avant le code, propose du code en
+suggestion (jamais en édition directe des fichiers du projet), puis vérifie
+ce qui a été effectivement écrit (fautes de frappe, oublis, cohérence)
+avant de passer à l'étape suivante.
 
 
 ========================================
-REVUE PHASE 2 — Module filtered-word (gabarit)
+ETAT DES LIEUX GLOBAL (fin de session du 2026-07-29)
 ========================================
 
-Ce qui fonctionne : CRUD complet (GET, GET :id, PATCH, POST, DELETE),
-validation via class-validator, DTO avec PartialType pour l'update.
-Va au-delà du plan initial (qui ne prévoyait que GET/POST/DELETE) --
-bon gabarit pour la Phase 4. Nommage corrigé (FilteredWordModule) et
-bug 404 corrigé (findOneBy + NotFoundException) le 2026-07-24.
-
-Reste à trancher :
-1. Convention de route : la roadmap prévoit des routes imbriquées type
-   GET /guilds/:guildId/members, mais filtered-word fait l'inverse
-   (guild_id est un champ du body du DTO, pas un paramètre d'URL).
-   A choisir avant de répliquer le pattern sur toute la Phase 4.
+Phase 1  -> FAIT (voir journal précédent)
+Phase 2  -> FAIT (module filtered-word complet)
+Phase 3  -> TERMINEE (les 7 étapes closes, voir détail plus bas)
+Phase 4  -> DEMARREE :
+    - filtered-word : déjà existant depuis Phase 2, guards Phase 3
+      appliqués cette session (JwtGuard + GuildGuard), considéré FAIT et
+      protégé.
+    - guild (GET /guilds/:guildId)        -> PAS COMMENCE, prochaine étape
+      concrète (permettra d'afficher les noms des serveurs dans le
+      dashboard, actuellement seuls les IDs sont connus via le JWT)
+    - members, logs, guild-config, exempted-roles, leveling, moderation,
+      embeds, birthdays, moc -> PAS COMMENCES (dossiers avec juste un .keep)
 
 
 ========================================
-ETAT DES LIEUX GLOBAL (fin de session)
+PHASE 3 — RECAP COMPLET DES 7 ETAPES (TOUTES FAITES ET VERIFIEES)
 ========================================
 
-Phase 1  -> FAIT, vérifié en conditions réelles (npm run dev:api OK)
-Phase 2  -> FAIT (module filtered-word complet, un seul point ouvert : convention de route)
-Phase 3  -> DEMARREE, embryonnaire :
-            - modules/auth/ a sa structure de fichiers
-            - auth.module.ts : squelette seulement (JwtModule importé,
-              pas configuré avec registerAsync/secret)
-            - auth.controller.ts et auth.service.ts : fichiers VIDES
-            - AuthModule n'est pas encore enregistré dans app.module.ts
-            - pas de dossier guards/ créé
-            Voir le fichier phase3-auth-guide.txt pour le détail
-            étape par étape de ce qu'il reste à coder.
-Phase 4  -> PAS COMMENCEE (tous les dossiers n'ont qu'un .keep)
+--- Étape 1 — apps/api/src/main.ts (cookie-parser + CORS) ---
+Fait, vérifié, RAS après correction. Bug trouvé et corrigé pendant la
+session : "credential: true" (sans le s) au lieu de "credentials: true"
+dans enableCors() -> les credentials n'étaient pas réellement activés,
+le cookie ne serait jamais parti en cross-origin. Corrigé.
+
+--- Étape 2 — apps/api/src/modules/auth/auth.module.ts ---
+Fait, vérifié, RAS. Contient TypeOrmModule.forFeature([Guild]),
+JwtModule.registerAsync (secret + expiresIn 7d via ConfigService),
+exports: [JwtModule].
+MODIFICATION IMPORTANTE ajoutée cette session : @Global() ajouté sur la
+classe (import Global depuis @nestjs/common). Nécessaire pour que
+JwtService (donc JwtGuard) soit utilisable dans n'importe quel futur
+module Phase 4 sans avoir à réimporter AuthModule partout à chaque fois.
+Un seul import de AuthModule dans app.module.ts (déjà présent) suffit
+grâce à @Global().
+
+--- Étape 3 — apps/api/src/modules/auth/auth.service.ts ---
+Fait, vérifié, RAS après corrections. Flow OAuth2 Discord en 4 étapes +
+signature JWT :
+  1. getDiscordAuthorizeUrl()    -> construit l'URL Discord (pas de call réseau)
+  2. exchangeCodeForToken(code)  -> POST /oauth2/token
+  3. fetchDiscordUser(token)     -> GET /users/@me
+  4. fetchManagedGuildIds(token) -> GET /users/@me/guilds, filtré par :
+       a) permission MANAGE_GUILD (bitfield 0x20n, test bit à bit avec &)
+       b) présence réelle en base (table guild) via guildRepository +
+          In(managedGuildIds)
+  handleCallback(code) orchestre tout, jwtService.sign({ sub, username, guilds }).
+
+DECISION IMPORTANTE (rappel) : bot privé, présent sur seulement 2 serveurs
+Discord, remplis manuellement en base (apps/bot est vide, aucun code bot
+n'existe encore) :
+  1105249695644786791 -> Wystrelia (officiel)
+  1508798654796795924 -> Wystrelia-dev
+D'où le filtre b) ci-dessus, obligatoire en plus de la permission Discord.
+
+3 bugs trouvés et corrigés pendant la session (déjà notés dans la version
+précédente de ce journal, tous corrigés depuis) :
+  1. `code` manquant dans le body de exchangeCodeForToken()
+  2. TypeOrmModule.forFeature([Guild]) manquant dans auth.module.ts
+  3. DISCORD_REDIRECT_URI absente de .env
+
+Etat .env vérifié (valeurs non vides) : JWT_SECRET, DISCORD_CLIENT_ID,
+DISCORD_CLIENT_SECRET, DASHBOARD_URL, DISCORD_REDIRECT_URI
+(=http://localhost:3000/auth/discord/callback, doit matcher EXACTEMENT
+la redirect URI du portail développeur Discord).
+
+--- Étape 4 — apps/api/src/modules/auth/auth.controller.ts ---
+Fait, vérifié, RAS après corrections. 4 routes : GET /auth/discord,
+GET /auth/discord/callback, POST /auth/logout, GET /auth/me (protégée
+par JwtGuard seul, pas de GuildGuard ici puisque pas de :guildId).
+
+Bugs trouvés et corrigés pendant la session :
+  1. Import `Response` depuis 'express' manquant au départ -> TS
+     résolvait vers le Response du DOM (fetch API) au lieu d'Express.
+  2. `import { Response }` -> `import type { Response }` nécessaire
+     (isolatedModules + emitDecoratorMetadata : un type utilisé en
+     paramètre décoré doit être importé en import type s'il n'existe
+     pas comme valeur runtime).
+  3. `res.redirect(DASHBOARD_URL)` manquant après avoir posé le cookie
+     dans handleDiscordCallback -> l'utilisateur restait bloqué sur la
+     route de callback. Corrigé.
+  4. `JwtGuard` utilisé dans @UseGuards(JwtGuard) sans être importé.
+     Corrigé (import { JwtGuard } from './guards/jwt.guard').
+
+Concept discuté en profondeur : @Res({ passthrough: true }) vs @Res()
+seul (passthrough garde la gestion automatique de la réponse par Nest
+tout en permettant res.cookie()/res.redirect() ciblés).
+
+--- Étape 5 — apps/api/src/modules/auth/guards/jwt.guard.ts ---
+Fait, vérifié, RAS après correction. Lit request.cookies['token'],
+jwtService.verify() dans un try/catch -> UnauthorizedException si
+absent/invalide, sinon attache le payload à request.user.
+
+Fichier associé créé : apps/api/src/types/express.d.ts
+  declare global { namespace Express { interface Request { user: {...} } } }
+  export {};
+Bug trouvé et corrigé : le `export {};` final manquait au départ ->
+sans lui, TS traite le fichier comme un script global (pas un module),
+et declare global ne fusionne pas correctement le type Request importé
+ailleurs depuis 'express'. D'où l'erreur "Property 'user' does not
+exist on type 'Request'" vue dans jwt.guard.ts ET auth.controller.ts en
+même temps (même cause racine, un seul fichier à corriger).
+
+Discussion : pourquoi express.d.ts ne va PAS dans packages/shared (qui
+ne contient que des entités TypeORM réellement partagées entre apps) --
+c'est une augmentation globale d'un type tiers (Express), qui n'a de
+sens que là où express/@types/express sont utilisés, donc seulement
+apps/api. Reste local à apps/api/src/types/.
+
+--- Étape 6 — apps/api/src/modules/auth/guards/guild.guard.ts ---
+Fait, vérifié, RAS après correction. Vérifie que request.params.guildId
+fait partie de request.user.guilds, sinon ForbiddenException (403, pas
+401 -- distinction volontaire "on sait qui tu es mais pas le droit ici").
+
+Bug trouvé et corrigé : erreur TS "Argument of type 'string | string[]'
+is not assignable to parameter of type 'string'" sur .includes(guildId).
+Cause : ParamsDictionary d'Express type toute valeur de req.params comme
+`string | string[]` (à cause du support des routes wildcard type
+`*id` qui peuvent capturer plusieurs segments). Fix : typer explicitement
+le générique de Request avec la forme réelle des params de cette route
+précise : context.switchToHttp().getRequest<Request<{ guildId: string }>>()
+-> guildId redevient un `string` simple, sans cast ni vérification
+runtime supplémentaire.
+
+--- Étape 7 — Appliquer les guards ---
+Pas de fichier dédié -- c'est une règle à appliquer à chaque nouveau
+controller Phase 4 avec :guildId dans sa route :
+  @Controller('guilds/:guildId/xxx')
+  @UseGuards(JwtGuard, GuildGuard)   // ORDRE IMPORTANT, voir plus bas
+  export class XxxController { ... }
+
+Concept discuté : l'ordre dans @UseGuards(...) EST l'ordre d'exécution.
+JwtGuard doit toujours être avant GuildGuard, puisque GuildGuard lit
+request.user.guilds, qui n'existe que si JwtGuard a déjà tourné et a
+réussi (sinon il lève une exception et coupe la chaîne avant GuildGuard).
+Rappel des 3 niveaux où @UseGuards/guards peuvent s'appliquer : méthode,
+classe (celui utilisé ici), ou global via app.useGlobalGuards() dans
+main.ts (pas utilisé dans ce projet, certaines routes comme
+/auth/discord ne doivent surtout pas être protégées).
+
+Appliqué concrètement cette session sur filtered-word.controller.ts
+(voir section Phase 4 ci-dessous) -- premier vrai test de la règle.
 
 
-Prochaine étape concrète : reprendre phase3-auth-guide.txt et coder
-l'auth Discord OAuth2 + JWT + Guards à la main, étape par étape.
+========================================
+PHASE 4 — filtered-word (guards appliqués cette session)
+========================================
+
+Le module filtered-word (créé en Phase 2) a été relu en entier avant
+d'ajouter les guards :
+  - Convention de route : @Controller('guilds/:guildId/filtered-words')
+    -- le point ouvert noté dans le journal précédent ("guild_id en body
+    vs :guildId en URL, à trancher") est résolu : convention imbriquée
+    adoptée, cohérente avec GuildGuard.
+  - Service : findAll/findOne/update/create/delete tous scopés par
+    guild_id en plus de l'id -- double protection même si un guard
+    était contourné (defense in depth).
+  - DTOs corrects (class-validator + PartialType pour l'update).
+
+Guards ajoutés sur apps/api/src/modules/filtered-word/filtered-word.controller.ts :
+  @Controller('guilds/:guildId/filtered-words')
+  @UseGuards(JwtGuard, GuildGuard)
+  export class FilteredWordController { ... }
+(imports : JwtGuard depuis '../auth/guards/jwt.guard', GuildGuard depuis
+'../auth/guards/guild.guard', UseGuards depuis '@nestjs/common')
+
+Vérifié après coup : RAS, fonctionne en théorie sans autre modification
+grâce au @Global() ajouté sur AuthModule à l'Étape 2 (JwtService résolu
+automatiquement sans que FilteredWordModule ait besoin d'importer
+AuthModule explicitement).
+
+
+========================================
+ANALYSE THEORIQUE END-TO-END (faite en fin de session, pas testée en réel)
+========================================
+
+1. Connexion : chaîne complète tracée (GET /auth/discord -> Discord ->
+   callback -> échange token -> identité -> guilds filtrés -> JWT signé
+   -> cookie posé -> redirect dashboard). Toutes les dépendances sont
+   satisfaites sur le papier. Point non vérifiable par lecture de code :
+   DISCORD_REDIRECT_URI doit matcher EXACTEMENT le portail Discord.
+
+2. Voir les différents serveurs : PARTIEL. GET /auth/me retourne bien
+   { sub, username, guilds: [ids] } -- l'info d'autorisation existe déjà.
+   MAIS le JWT ne contient que des IDs, pas les noms ("Wystrelia",
+   "Wystrelia-dev") ni icônes -- il manque le module guild (Phase 4,
+   pas commencé) pour que le dashboard affiche un vrai sélecteur de
+   serveur lisible. C'est la prochaine étape logique.
+
+3. Fonctionnalités filtered-word : protection à 3 niveaux (JwtGuard,
+   GuildGuard, filtrage guild_id dans le service) -- cohérent.
+
+Rappels pour un test réel (hors scope code, à vérifier manuellement) :
+  - Le dashboard doit utiliser credentials: 'include' (fetch) ou
+    withCredentials: true (axios) sur ses appels, sinon le cookie ne
+    partira jamais malgré tout ce qui est en place côté API.
+  - auth.service.ts utilise `fetch` natif -> nécessite Node 18+, à
+    vérifier (node -v) si l'échange de token échoue silencieusement.
+
+
+========================================
+PROCHAINE ÉTAPE CONCRÈTE À LA REPRISE
+========================================
+
+1. Tester le flow de connexion en conditions réelles (npm run dev:api,
+   cliquer /auth/discord dans un navigateur) -- pas encore fait cette
+   session, seulement une revue théorique du code.
+2. Construire le module guild (Phase 4, item 16) : GET /guilds/:guildId
+   -- comblera le manque de noms de serveurs identifié au point 2 de
+   l'analyse ci-dessus. Répliquer le gabarit filtered-word (module +
+   service + controller), en pensant à appliquer @UseGuards(JwtGuard,
+   GuildGuard) dès l'écriture (Étape 7 de la Phase 3 s'applique
+   systématiquement à partir de maintenant).
+3. Continuer Phase 4 dans l'ordre de la roadmap : members, logs,
+   guild-config, exempted-roles, leveling, moderation, puis
+   embeds/birthdays/moc si le temps le permet.
+
+Rappel méthode de travail à conserver : l'assistant explique le concept
+avant le code, propose le code en suggestion uniquement (jamais
+d'édition directe des fichiers du projet), donne systématiquement le
+chemin complet du fichier concerné, et fait une passe de vérification
+(fautes de frappe / oublis / cohérence) une fois que l'utilisateur dit
+avoir terminé une étape.

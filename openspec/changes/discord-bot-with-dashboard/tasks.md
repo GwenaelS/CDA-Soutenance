@@ -1,10 +1,12 @@
 ## 1. Scaffolding projet
 
-- [ ] 1.1 Initialiser le monorepo pnpm avec `pnpm-workspace.yaml` et le `package.json` racine
-- [ ] 1.2 Créer les packages : `packages/shared`, `packages/bot`, `packages/api`, `packages/dashboard`
-- [ ] 1.3 Configurer le `tsconfig.json` racine avec aliases de chemins et les `tsconfig.json` par package
-- [ ] 1.4 Ajouter `.env.example` avec toutes les variables d'environnement requises (`DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `JWT_SECRET`, `DASHBOARD_URL`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`)
-- [ ] 1.5 Configurer ESLint et Prettier avec une config partagée à la racine
+> **État au 2026-07-29** : ce fichier a été resynchronisé avec le code réel pour les sections 1 à 3 et 11 (auth). Les sections 4 à 10 et 12-13 reflètent encore l'intention initiale — aucun code correspondant n'existe à ce jour côté `apps/bot`/`apps/dashboard` au-delà du filtre de mots interdits et des pages dashboard en mock. Voir `design.md` (section "Schéma de base de données" et décision "Le processus bot est un module NestJS") pour le détail des écarts.
+
+- [x] 1.1 Initialiser le monorepo — ~~pnpm~~ **npm workspaces** (`package.json` racine, `"workspaces": ["apps/*", "packages/*"]`), pas de `pnpm-workspace.yaml`
+- [x] 1.2 Créer les packages : `packages/shared`, `apps/bot`, `apps/api`, `apps/dashboard` (dossiers réels — pas `apps/bot`, `apps/api`, `apps/dashboard` comme envisagé initialement)
+- [x] 1.3 Configurer le `tsconfig.json` racine (`tsconfig.base.json`) et les `tsconfig.json` par app
+- [x] 1.4 `.env.example` présent dans `apps/api` et `apps/dashboard` ; `apps/bot` utilise `.env.sample` (nom différent, même rôle — à uniformiser)
+- [ ] 1.5 ESLint et Prettier — **pas de config partagée à la racine** ; chaque app a sa propre config indépendante (`apps/api/eslint.config.mjs`, `apps/bot/eslint.config.mjs`, `apps/dashboard/eslint.config.js`, idem `.prettierrc`) — tâche non faite telle que spécifiée
 
 ## 2. Types partagés (packages/shared)
 
@@ -12,23 +14,27 @@
 - [ ] 2.2 Définir l'enum partagé `ModerationAction` : `KICK`, `BAN`, `TIMEOUT`, `WARN`, `UNBAN`, `UNTIMEOUT`, `UNWARN`, `LOCK`, `UNLOCK`, `CLEAR`, `SERVER_MUTE`, `SERVER_UNMUTE`
 - [ ] 2.3 Exporter tous les types depuis `packages/shared/src/index.ts`
 
-## 3. Schéma base de données (packages/api — entités TypeORM)
+## 3. Schéma base de données (packages/shared — entités TypeORM, consommées par apps/api et apps/bot)
 
-- [ ] 3.1 Configurer TypeORM dans `packages/api` avec le driver mysql2 (`synchronize: false`, migrations uniquement)
-- [ ] 3.2 Définir l'entité `Guild` (`id`, `name`, `iconUrl`, `active`, `createdAt`)
-- [ ] 3.3 Définir l'entité `GuildConfig` (`guildId`, `logChannelId`, `welcomeChannelId`, `welcomeMessage`, `autoRoleId`, `birthdayChannelId`)
-- [ ] 3.4 Définir l'entité `AuditEntry` (`id`, `guildId`, `actorId`, `targetId`, `action` enum, `reason`, `createdAt`)
-- [ ] 3.5 Définir l'entité `GuildXpConfig` (`guildId`, `xpPerMessage`, `messageCooldownSeconds`, `xpPerVoiceMinute`, `levelRewards` en JSON)
-- [ ] 3.6 Définir l'entité `UserXp` (`id`, `guildId`, `userId`, `username`, `avatarUrl`, `joinedAt`, `xp`, `level`, `lastMessageAt`)
-- [ ] 3.7 Définir l'entité `AutoModerationConfig` (`guildId`, `bannedWords` JSON, `spamDetectionEnabled`, `linkFilterEnabled`, `inviteFilterEnabled`, `exemptRoleIds` JSON)
-- [ ] 3.8 Définir l'entité `Birthday` (`id`, `guildId`, `userId`, `month`, `day`)
-- [ ] 3.9 Définir l'entité `SavedEmbed` (`id`, `guildId`, `name`, `title`, `description`, `color`, `createdAt`, `updatedAt`)
-- [ ] 3.10 Définir l'entité `MocChannel` (`id`, `guildId`, `channelId`)
-- [ ] 3.11 Définir l'entité `GuildStatEntry` (`id`, `guildId`, `date` DATE, `memberCount`, `joins`, `leaves`, `messageCount`)
-- [ ] 3.12 Générer et exécuter la migration TypeORM initiale : `migration:generate` puis `migration:run`
-- [ ] 3.13 Exporter le singleton DataSource depuis `packages/api/src/data-source.ts`
+> Le schéma réel (16 entités) a divergé du schéma d'origine (10 entités listées ci-dessous à l'origine) pendant le Sprint 1. Liste mise à jour le 2026-07-29 — détail des champs et écarts dans `design.md` (section "Schéma de base de données").
 
-## 4. Bot Core (packages/bot)
+- [x] 3.1 TypeORM configuré dans `apps/api` (`database/database.module.ts`) avec le driver mysql2 — **`synchronize: true`** actuellement (pas `false`+migrations comme prévu ; acceptable en dev, à revoir avant prod)
+- [x] 3.2 `Guild` (`guild_id` PK snowflake, `guild_name`)
+- [x] 3.3 `Guild_config` (`id`, `welcome_channel_id`, `member_count_channel_id`, `all_log_channel_id`, `birthday_channel_id`, `twitch_channel_id`)
+- [x] 3.4 `Log` (remplace `AuditEntry` — `id`, `target_id`, `author_id`, `type` enum, `reason`, `datetime`) + `Channel_log` (salon de logs par type d'action, RG-14)
+- [x] 3.5 `Level_config` (remplace `GuildXpConfig` — `id`, `max_level`, `xp_multiplier`, `xp_per_message`, `xp_per_voice_min`, `xp_cooldown_sec`) + `Level_reward` (table dédiée pour les paliers, pas de JSON)
+- [x] 3.6 `Member` (remplace `UserXp` — `member_id`, `discord_user_id`, `current_xp`, `current_level`, `last_xp_at`, `joined_at`, `left_at`)
+- [x] 3.7 `Filtered_word` + `Exempted_role` (remplacent `AutoModerationConfig` — tables relationnelles au lieu de colonnes JSON) — **mais aucune colonne toggle** (`spamDetectionEnabled`/`linkFilterEnabled`/`inviteFilterEnabled`/`autoMuteDurationMinutes`) n'existe encore nulle part : à ajouter avant de coder spam/liens/invitations
+- [x] 3.8 `Birthday` (`id`, `discord_user_id`, `datetime`, `date_post`)
+- [x] 3.9 `Embed` (remplace `SavedEmbed` — **sans** `name`/`createdAt`/`updatedAt`, à ajouter si plusieurs embeds par serveur doivent être distingués par nom)
+- [x] 3.10 `Moc_channel` (remplace `MocChannel` — bien plus riche : `allow_files`, `allow_images`, `allow_videos`, `allow_links`, `allow_text`)
+- [ ] 3.11 Pas d'équivalent à `GuildStatEntry` — **non fait**, bloque toute donnée réelle derrière `StatsPage.tsx` (dashboard, actuellement en mock)
+- [ ] 3.12 Pas de migration TypeORM générée — le schéma vit via `synchronize: true` en dev ; `data-source.ts` (pour `migration:generate`/`migration:run`) à réactiver avant la mise en prod
+- [ ] 3.13 Pas de singleton `DataSource` exporté séparément — la config TypeORM vit dans `DatabaseModule` (`TypeOrmModule.forRootAsync`)
+
+Entités supplémentaires non prévues à l'origine, ajoutées pendant le Sprint 1 : `Warning` (table dédiée pour US-12 avec flag `is_active`), `Mute` (mute anti-spam RG-13, table dédiée), `Automatic_role` (RG-21), `Twitch` (hors périmètre v1 déclaré dans `design.md` — entité existe déjà, code d'anticipation non prioritaire).
+
+## 4. Bot Core (apps/bot)
 
 - [ ] 4.1 Installer discord.js 14 et initialiser `src/index.ts` avec `Client` (intents : `Guilds`, `GuildMembers`, `GuildVoiceStates`, `GuildMessages`, `MessageContent`)
 - [ ] 4.2 Implémenter le loader de commandes qui lit tous les fichiers de `src/commands/` et construit une `Collection<string, Command>`
@@ -40,7 +46,7 @@
 - [ ] 4.8 Ajouter les handlers globaux d'erreurs non gérées qui loggent et répondent avec un message éphémère "Une erreur est survenue"
 - [ ] 4.9 Créer le script `src/deploy-commands.ts` qui enregistre toutes les définitions de commandes slash (par serveur en dev via `GUILD_ID`, globalement en prod)
 
-## 5. Auto-modération (packages/bot)
+## 5. Auto-modération (apps/bot)
 
 - [ ] 5.1 Créer `src/handlers/auto-mod.ts` — handler sur `messageCreate` ; charger et mettre en cache la config `AutoModerationConfig` par serveur
 - [ ] 5.2 Implémenter la vérification des rôles exemptés : si l'auteur possède un rôle dans `exemptRoleIds`, ne pas appliquer de filtres
@@ -50,7 +56,7 @@
 - [ ] 5.6 Implémenter la suppression des invitations Discord : supprimer le message s'il contient `discord.gg/` ou `discord.com/invite/` et que `inviteFilterEnabled` est `true`
 - [ ] 5.7 Après chaque suppression, poster un embed de log dans `logChannelId` (si configuré) indiquant la règle déclenchée, le salon et l'auteur
 
-## 6. Commandes de modération (packages/bot)
+## 6. Commandes de modération (apps/bot)
 
 - [ ] 6.1 Créer `src/commands/kick.ts` — valider permissions + hiérarchie des rôles, exclure le membre, écrire `AuditEntry` (KICK), envoyer confirmation éphémère
 - [ ] 6.2 Créer `src/commands/ban.ts` — valider permissions, bannir par mention ou ID, supprimer messages (0–7 jours), écrire `AuditEntry` (BAN)
@@ -69,7 +75,7 @@
 - [ ] 6.15 Créer `src/utils/permission-check.ts` — valider `MANAGE_GUILD` / `Kick Members` / `Ban Members` et la hiérarchie des rôles avant chaque action
 - [ ] 6.16 Créer `src/utils/audit.ts` — écrire `AuditEntry` en DB et poster l'embed de log dans `logChannelId` si configuré
 
-## 7. Système XP & Niveaux (packages/bot)
+## 7. Système XP & Niveaux (apps/bot)
 
 - [ ] 7.1 Créer `src/handlers/xp-message.ts` — sur `messageCreate`, charger `GuildXpConfig`, appliquer le cooldown par utilisateur, accorder `xpPerMessage`, détecter le passage de niveau, assigner la récompense de rôle si un palier est atteint ; incrémenter `GuildStatEntry.messageCount`
 - [ ] 7.2 Créer `src/handlers/xp-voice.ts` — sur `voiceStateUpdate`, suivre les timestamps de join/leave en mémoire, accorder `xpPerVoiceMinute` au départ ; détecter le passage de niveau et assigner la récompense de rôle
@@ -81,11 +87,11 @@
 - [ ] 7.8 Créer `src/commands/setlevels.ts` — définir le niveau d'un utilisateur directement (requiert `MANAGE_GUILD`), recalculer l'XP correspondant
 - [ ] 7.9 Créer `src/commands/reset.ts` — remettre l'XP et le niveau d'un utilisateur à 0 dans le serveur (requiert `MANAGE_GUILD`)
 
-## 8. Annonces embed (packages/bot)
+## 8. Annonces embed (apps/bot)
 
 - [ ] 8.1 Créer `src/commands/announce.ts` — commande slash avec options `title`, `description`, `color` (hex), `channel` (mention de salon) ; requiert `MANAGE_GUILD` ; envoie un embed rich au salon spécifié
 
-## 9. Système d'anniversaires (packages/bot + packages/api)
+## 9. Système d'anniversaires (apps/bot + apps/api)
 
 - [ ] 9.1 Créer `src/cron/birthday.ts` dans le bot — job cron quotidien à minuit UTC : récupérer tous les `Birthday` dont `month` et `day` correspondent à aujourd'hui, envoyer un embed dans `GuildConfig.birthdayChannelId` si configuré
 - [ ] 9.2 Implémenter le démarrage du cron dans `src/index.ts` au démarrage du bot
@@ -94,7 +100,7 @@
   - `POST /guilds/:guildId/birthdays` — ajouter un anniversaire (`userId`, `month`, `day`)
   - `DELETE /guilds/:guildId/birthdays/:userId` — supprimer l'anniversaire d'un utilisateur
 
-## 10. Média-Only-Channels / MOC (packages/bot + packages/api)
+## 10. Média-Only-Channels / MOC (apps/bot + apps/api)
 
 - [ ] 10.1 Créer `src/handlers/moc.ts` dans le bot — sur `messageCreate`, vérifier si le salon est dans `MocChannel` ; si le message ne contient ni pièce jointe ni embed image/vidéo, supprimer le message et informer l'auteur (message éphémère ou DM)
 - [ ] 10.2 Créer le module `MocModule` dans l'API avec :
@@ -103,18 +109,22 @@
   - `DELETE /guilds/:guildId/moc-channels/:channelId` — retirer un salon de la liste MOC
 - [ ] 10.3 Mettre en cache la liste des salons MOC en mémoire dans le bot ; invalider sur modification via API
 
-## 11. API NestJS (packages/api)
+## 11. API NestJS (apps/api)
 
-- [ ] 11.1 Scaffolder l'app NestJS avec `@nestjs/cli` ; configurer `AppModule` avec `TypeOrmModule.forRoot`, `ConfigModule.forRoot`
-- [ ] 11.2 Créer `AuthModule` avec `POST /auth/callback` — recevoir le code d'autorisation Discord OAuth2, échanger contre le token Discord, récupérer utilisateur + liste de serveurs, émettre un JWT signé dans un cookie HttpOnly
-- [ ] 11.3 Créer `POST /auth/logout` — effacer le cookie JWT
-- [ ] 11.4 Créer `JwtAuthGuard` — valider le cookie JWT et attacher le payload décodé à la requête
-- [ ] 11.5 Créer `GuildAdminGuard` — vérifier `MANAGE_GUILD` pour le `guildId` demandé via le token Discord stocké
-- [ ] 11.6 Créer `GuildsModule` avec `GET /guilds` — retourner les serveurs gérés par l'utilisateur où le bot est actif
+- [x] 11.1 App NestJS scaffoldée (`@nestjs/cli`) ; `AppModule` avec `TypeOrmModule.forRootAsync` (`DatabaseModule`), `ConfigModule.forRoot({ isGlobal: true })`
+- [x] 11.2 `AuthModule` créé — **shape différente de la spec d'origine** : pas de `POST /auth/callback` unique, mais un flow serveur complet en 2 routes GET : `GET /auth/discord` (redirige vers Discord) et `GET /auth/discord/callback?code=...` (échange le code, émet le JWT en cookie HttpOnly, redirige vers `DASHBOARD_URL`). Le dashboard ne fait jamais lui-même l'échange OAuth — toute la logique est côté API.
+- [x] 11.3 `POST /auth/logout` créé — efface le cookie
+- [x] 11.4 Guard JWT créé — nommé **`JwtGuard`** (pas `JwtAuthGuard`), dans `apps/api/src/modules/auth/guards/jwt.guard.ts`
+- [x] 11.5 Guard guild créé — nommé **`GuildGuard`** (pas `GuildAdminGuard`), dans `apps/api/src/modules/auth/guards/guild.guard.ts` ; vérifie `request.params.guildId` contre la liste `guilds` du JWT (déjà filtrée par `MANAGE_GUILD` **et** présence du serveur dans la table `guild` — voir note ci-dessous)
+- [ ] 11.6 `GuildsModule` avec `GET /guilds` — **non fait**. Le JWT contient déjà les IDs de serveurs autorisés (`sub`, `username`, `guilds: string[]`), mais aucun endpoint ne renvoie noms/icônes — le dashboard ne peut pas encore afficher un sélecteur de serveur lisible. Prochaine étape logique côté API.
+
+> **Note sur le filtrage des guilds (2026-07-29)** : le scope initial ("serveurs où le bot est actif") a été précisé pendant l'implémentation — le bot est privé, présent sur seulement 2 serveurs (`Wystrelia`, `Wystrelia-dev`, saisis manuellement dans la table `guild` en l'absence de code côté `apps/bot` pour la synchroniser automatiquement). Le filtre final croise permission Discord (`MANAGE_GUILD`) **et** présence réelle dans la table `guild`, pas seulement la permission Discord seule.
+>
+> **Bug de spec corrigé (2026-07-29)** : `specs/dashboard-auth/spec.md` décrivait le dashboard lisant "le payload JWT décodé depuis le cookie" côté client — impossible avec un cookie `httpOnly` (la même spec l'exige juste au-dessus). Le mécanisme réel : le dashboard appelle `GET /auth/me` (protégé par `JwtGuard`) pour obtenir le payload décodé côté serveur. Spec corrigée en conséquence.
 - [ ] 11.7 Créer `AuditLogModule` avec `GET /guilds/:guildId/audit-log` — paginé (25/page), filtrable par `action` et `targetId` ; protégé par les guards
 - [ ] 11.8 Créer `GuildConfigModule` avec `GET /guilds/:guildId/config` et `PATCH /guilds/:guildId/config` — validé avec DTOs class-validator ; protégé par les guards
 - [ ] 11.9 Créer `XpModule` avec `GET /guilds/:guildId/xp/config`, `PATCH /guilds/:guildId/xp/config` et `GET /guilds/:guildId/xp/leaderboard` (top 50 par XP) ; protégé par les guards
-- [ ] 11.10 Créer `AutoModerationModule` avec `GET /guilds/:guildId/auto-moderation` et `PATCH /guilds/:guildId/auto-moderation` ; protégé par les guards ; invalider le cache en mémoire du bot sur PATCH
+- [ ] 11.10 `AutoModerationModule` (config globale spam/liens/invitations) — **non fait**, bloqué par l'absence de colonnes toggle (voir section 3). En revanche, la gestion des mots interdits a été anticipée et faite en Phase 2 sous forme d'un module dédié **`FilteredWordModule`** (non prévu initialement comme module séparé) : `GET/POST/PATCH/DELETE /guilds/:guildId/filtered-words`, CRUD complet plutôt qu'un `PATCH` unique sur un tableau `bannedWords` — contrat d'API différent de celui décrit dans `specs/auto-moderation/spec.md` (à resynchroniser). Guards `JwtGuard`+`GuildGuard` déjà appliqués dessus.
 - [ ] 11.11 Créer `BirthdaysModule` (voir tâche 9.3)
 - [ ] 11.12 Créer `MocModule` (voir tâche 10.2)
 - [ ] 11.13 Créer `EmbedsModule` avec :
@@ -131,7 +141,7 @@
   - `POST /guilds/:guildId/members/:userId/kick`
   - `POST /guilds/:guildId/members/:userId/ban`
 
-## 12. Dashboard React/Vite (packages/dashboard)
+## 12. Dashboard React/Vite (apps/dashboard)
 
 - [ ] 12.1 Scaffolder l'app Vite + React 18 + TypeScript ; configurer Tailwind CSS
 - [ ] 12.2 Configurer React Router v6 avec les routes : `/`, `/auth/callback`, `/dashboard`, `/dashboard/:guildId`, `/dashboard/:guildId/audit-log`, `/dashboard/:guildId/settings`, `/dashboard/:guildId/auto-moderation`, `/dashboard/:guildId/xp`, `/dashboard/:guildId/announce`, `/dashboard/:guildId/birthdays`, `/dashboard/:guildId/moc`, `/dashboard/:guildId/members`

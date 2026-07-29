@@ -28,15 +28,22 @@ Le système comprend deux processus runtime : un **processus bot** long-running 
 
 ## Décisions
 
-### Monorepo pnpm workspaces
-**Décision** : Un repo unique avec quatre packages — `packages/bot`, `packages/api`, `packages/dashboard`, `packages/shared` — où `shared` contient les interfaces TypeScript et DTOs consommés par l'API et le dashboard.
-**Pourquoi** : Les types partagés éliminent les dérives entre les formes de réponse API et les consommateurs dashboard. Une modification d'un DTO met à jour tous les consommateurs.
-**Alternatives considérées** : Repos séparés (plus de flexibilité de déploiement mais partage de types douloureux).
+### Monorepo npm workspaces
+**Décision** : Un repo unique avec quatre workspaces — `apps/bot`, `apps/api`, `apps/dashboard`, `packages/shared` — où `shared` contient les entités TypeORM et types consommés par l'API et le bot.
+**Pourquoi** : Les types/entités partagés éliminent les dérives entre les formes de réponse API et les consommateurs dashboard/bot. Une modification d'une entité met à jour tous les consommateurs.
+**Alternatives considérées** : Repos séparés (plus de flexibilité de déploiement mais partage de types douloureux) ; **pnpm workspaces** (choix initial de cette section — l'équipe a finalement implémenté avec **npm workspaces** classique, plus simple à outiller pour l'équipe ; aucun `pnpm-workspace.yaml`/`pnpm-lock.yaml` dans le repo, `package.json` racine utilise `"workspaces": ["apps/*", "packages/*"]`).
+**Correction 2026-07-29** : les dossiers `packages/bot`, `packages/api`, `packages/dashboard` envisagés initialement sont en réalité `apps/bot`, `apps/api`, `apps/dashboard` dans l'implémentation — seul `packages/shared` a gardé son nom d'origine. Toutes les références à `packages/{bot,api,dashboard}` dans ce document et `tasks.md` sont obsolètes.
 
 ### discord.js 14 avec commandes slash uniquement
 **Décision** : Toutes les commandes sont enregistrées comme commandes d'application (slash) ; pas de commandes préfixées legacy.
 **Pourquoi** : Discord a déprécié l'intent message-content pour les bots vérifiés ; les commandes slash fournissent autocomplétion et scoping de permissions intégrés.
 **Alternatives considérées** : Commandes préfixées via intent message-content (intent privilégié, en cours de suppression).
+
+### Le processus bot est un module NestJS encapsulant discord.js
+**Décision** : `apps/bot` n'est pas un script discord.js minimal (`src/index.ts` + `Client`) comme envisagé initialement, mais une application NestJS à part entière (`app.module.ts`, `discord/bot.module.ts`, `discord/bot.service.ts` qui expose le client discord.js, `events/event.module.ts` avec des listeners injectables comme `MessageCreateListener`).
+**Pourquoi** : Cohérence avec `apps/api` (même stack NestJS + TypeORM, même pattern module/service/DI) ; injection directe des repositories TypeORM (`@InjectRepository`) dans les listeners d'événements Discord ; testabilité (chaque listener est un provider Nest testable unitairement, cf. `message-create.listener.spec.ts`).
+**Alternatives considérées** : Script discord.js minimal (approche d'origine) — écartée au profit de la cohérence d'ensemble du monorepo.
+**Statut réel (2026-07-29)** : seul `MessageCreateListener` existe, gérant uniquement le filtre de mots interdits + rôles exemptés (capability `auto-moderation`, partiellement). Aucune commande slash, pas de détection de spam/liens/invitations, pas de système XP, pas de cron anniversaire, pas de MOC côté bot à ce jour.
 
 ### NestJS pour l'API REST
 **Décision** : NestJS comme framework API, avec modules TypeORM et Guards pour l'application de l'authentification.
@@ -91,20 +98,33 @@ Le système comprend deux processus runtime : un **processus bot** long-running 
 
 ## Schéma de base de données
 
-| Entité | Champs clés |
-|---|---|
-| `Guild` | `id`, `name`, `iconUrl`, `active`, `createdAt` |
-| `GuildConfig` | `guildId`, `logChannelId`, `welcomeChannelId`, `welcomeMessage`, `autoRoleId`, `birthdayChannelId` |
-| `AuditEntry` | `id`, `guildId`, `actorId`, `targetId`, `action` (enum), `reason`, `createdAt` |
-| `GuildXpConfig` | `guildId`, `xpPerMessage`, `messageCooldownSeconds`, `xpPerVoiceMinute`, `levelRewards` (JSON) |
-| `UserXp` | `id`, `guildId`, `userId`, `username`, `avatarUrl`, `joinedAt`, `xp`, `level`, `lastMessageAt` |
-| `AutoModerationConfig` | `guildId`, `bannedWords` (JSON), `spamDetectionEnabled`, `linkFilterEnabled`, `inviteFilterEnabled`, `exemptRoleIds` (JSON) |
-| `Birthday` | `id`, `guildId`, `userId`, `month`, `day` |
-| `SavedEmbed` | `id`, `guildId`, `name`, `title`, `description`, `color`, `createdAt`, `updatedAt` |
-| `MocChannel` | `id`, `guildId`, `channelId` |
-| `GuildStatEntry` | `id`, `guildId`, `date` (DATE), `memberCount`, `joins`, `leaves`, `messageCount` |
+**Obsolète — remplacé le 2026-07-29.** Le schéma ci-dessous (10 entités, plusieurs colonnes JSON) était la première intention. L'implémentation réelle a divergé pendant le Sprint 1 vers un schéma plus normalisé (16 entités, voir `docs/Sprint 1` et les MCD/MLD/MPD dans `docs/Document Brief.pdf`), défini dans `packages/shared/src/entities/`. Table à jour :
 
-**Enum `ModerationAction`** : `KICK`, `BAN`, `TIMEOUT`, `WARN`, `UNBAN`, `UNTIMEOUT`, `UNWARN`, `LOCK`, `UNLOCK`, `CLEAR`, `SERVER_MUTE`, `SERVER_UNMUTE`
+| Entité (fichier) | Champs clés | Écart vs schéma d'origine |
+|---|---|---|
+| `Guild` | `guild_id` (PK, snowflake Discord), `guild_name` | Pas de `iconUrl`/`active`/`createdAt` |
+| `Guild_config` | `id`, `welcome_channel_id`, `member_count_channel_id`, `all_log_channel_id`, `birthday_channel_id`, `twitch_channel_id`, relation 1,1 `guild` | Pas de `welcomeMessage`/`autoRoleId` (voir `Automatic_role`) |
+| `Log` | `id`, `target_id`, `author_id`, `type` (enum `LogType`), `reason`, `datetime`, relation `guild` | Remplace `AuditEntry` ; `type` au lieu de `action` |
+| `Channel_log` | `id`, `type`, `channel_id`, relation `guild` | Salon de logs par type d'action (RG-14), absent du schéma d'origine |
+| `Warning` | `id`, `target_id`, `author_id`, `reason`, `is_active`, relation `member` | Table dédiée (pas fondue dans `AuditEntry`), permet le flag `is_active` pour `/unwarn` (US-12) |
+| `Mute` | `id`, `user_id`, `mute_duration`, `started_at`, `expire_at`, relation `member` | Table dédiée pour le mute anti-spam (RG-13), absente du schéma d'origine |
+| `Filtered_word` | `id`, `word`, relation `guild` | Remplace la colonne JSON `bannedWords` de `AutoModerationConfig` |
+| `Exempted_role` | `id`, `role_id`, relation `guild` | Remplace la colonne JSON `exemptRoleIds` |
+| `Automatic_role` | `id`, `role_id`, relation `guild` | Rôles attribués à l'arrivée (RG-21), absent du schéma d'origine |
+| `Level_config` | `id`, `max_level`, `xp_multiplier`, `xp_per_message`, `xp_per_voice_min`, `xp_cooldown_sec`, relation 1,1 `guild` | Remplace `GuildXpConfig` (sans la colonne JSON `levelRewards`, voir `Level_reward`) |
+| `Level_reward` | `id`, `level`, `role_id`, relation `guild` | Table dédiée au lieu de `levelRewards` en JSON — une ligne par palier |
+| `Member` | `member_id`, `discord_user_id`, `current_xp`, `current_level`, `last_xp_at`, `joined_at`, `left_at`, relation `guild` | Remplace `UserXp` |
+| `Birthday` | `id`, `discord_user_id`, `datetime`, `date_post`, relation 0,1 `member` | — |
+| `Embed` | `id`, `title`, `description`, `color`, relation `guild` | Remplace `SavedEmbed` ; **pas de `name`** (impossible de distinguer plusieurs embeds sauvegardés par nom) ni de `createdAt`/`updatedAt` |
+| `Moc_channel` | `id`, `moc_channel_id`, `allow_files`, `allow_images`, `allow_videos`, `allow_links`, `allow_text`, relation `guild` | Bien plus riche que `MocChannel` d'origine — types de contenus autorisés déclaratifs (cf. RG-20) |
+| `Twitch` | `id`, `twitch_username`, relation `guild` | Existe en base alors que Twitch est un **non-objectif v1** (voir Objectifs/Non-objectifs plus haut) — code d'anticipation, non prioritaire |
+
+**Écarts connus / travail restant identifiés le 2026-07-29 :**
+- **Aucune entité `GuildStatEntry`** (ou équivalent) n'existe : la page dashboard `StatsPage.tsx` (capability `dashboard-ui`, US-09) tourne entièrement sur des données mockées, sans aucune persistance ni endpoint API réels derrière.
+- **Aucune colonne de toggle** (`spamDetectionEnabled`, `linkFilterEnabled`, `inviteFilterEnabled`, `autoMuteDurationMinutes`) n'existe nulle part dans le schéma actuel — ni sur `Guild_config`, ni ailleurs. Nécessaire avant de pouvoir implémenter RG-06/07/08/09 (spam, liens, invitations) côté bot. À ajouter (nouvelle entité `AutoModerationConfig` ou colonnes sur `Guild_config`) avant de commencer ces fonctionnalités.
+- `synchronize: true` est utilisé en développement (`apps/api/src/database/database.module.ts`) plutôt que des migrations TypeORM versionnées — acceptable en dev, mais `data-source.ts` a besoin d'être réactivé avec ses migrations avant la mise en production (voir aussi `api-roadmap-journal.txt`).
+
+**Enum `ModerationAction`** (`LogType`, dans `packages/shared/src/enum`) : à vérifier/aligner avec la liste `KICK`, `BAN`, `TIMEOUT`, `WARN`, `UNBAN`, `UNTIMEOUT`, `UNWARN`, `LOCK`, `UNLOCK`, `CLEAR`, `SERVER_MUTE`, `SERVER_UNMUTE` envisagée initialement — non vérifié lors de cette passe de mise à jour, à confirmer contre `packages/shared/src/enum` avant l'implémentation des commandes de modération.
 
 ## Risques / Compromis
 

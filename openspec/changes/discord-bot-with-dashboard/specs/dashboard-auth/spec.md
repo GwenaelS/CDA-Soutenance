@@ -28,6 +28,8 @@ Seuls les utilisateurs possédant la permission Discord `MANAGE_GUILD` dans un s
 - **QUAND** un admin authentifié navigue vers `/dashboard/{guildId}` mais que le bot n'est pas membre de ce serveur
 - **ALORS** la page affiche une invite "Ajouter le bot à ce serveur" avec le lien d'invitation du bot
 
+> **Écart connu (2026-07-29)** : ce scénario n'est pas réalisable avec l'implémentation actuelle. Le JWT ne stocke que l'**intersection** entre les serveurs où l'utilisateur a `MANAGE_GUILD` et ceux déjà présents dans la table `guild` (`apps/api/src/modules/auth/auth.service.ts`, `fetchManagedGuildIds`) — les serveurs où l'utilisateur est admin mais où le bot est absent sont silencieusement exclus du token, donc invisibles pour le dashboard. Pour implémenter ce scénario, `handleCallback` devrait aussi renvoyer la liste complète des guilds admin (avec un flag "bot présent" par serveur) plutôt que la seule intersection.
+
 ---
 
 ### Exigence : La session JWT persiste après un rechargement de page
@@ -35,7 +37,9 @@ Le JWT stocké dans le cookie HttpOnly DOIT permettre à l'utilisateur de rester
 
 #### Scénario : L'utilisateur recharge la page
 - **QUAND** un utilisateur avec un cookie JWT valide recharge le dashboard
-- **ALORS** l'application React lit le payload JWT décodé depuis le cookie et restaure l'état authentifié sans rediriger vers la page de connexion
+- **ALORS** l'application React appelle `GET /auth/me` (envoyé avec `credentials: 'include'`) pour obtenir le payload décodé et restaure l'état authentifié sans rediriger vers la page de connexion
+
+> **Correction 2026-07-29** : la version précédente de ce scénario décrivait l'application React lisant "le payload JWT décodé depuis le cookie" directement côté client — techniquement impossible puisque le cookie est `httpOnly` (exigence de sécurité ci-dessus), donc invisible pour tout JavaScript exécuté dans le navigateur. Le mécanisme réel implémenté (`apps/api/src/modules/auth/auth.controller.ts`, route `GET /auth/me` protégée par `JwtGuard`) fait décoder le JWT côté serveur et renvoie le payload en JSON — c'est la seule façon de rester cohérent avec `httpOnly`.
 
 #### Scénario : JWT expiré
 - **QUAND** le JWT d'un utilisateur a expiré et qu'il navigue vers une route protégée
