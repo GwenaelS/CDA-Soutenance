@@ -118,7 +118,7 @@ export class AuthService {
     // (rows that exist in the 'guild' table)
     const knownGuilds = await this.guildRepository.find({
       where: { guild_id: In(managedGuildIds) },
-      select: ['guild_id'],
+      select: { guild_id: true },
     });
 
     return knownGuilds.map((guild) => guild.guild_id);

@@ -12,19 +12,18 @@ avant de passer à l'étape suivante.
 
 
 ========================================
-ETAT DES LIEUX GLOBAL (fin de session du 2026-07-29)
+ETAT DES LIEUX GLOBAL (fin de session du 2026-07-31)
 ========================================
 
 Phase 1  -> FAIT (voir journal précédent)
 Phase 2  -> FAIT (module filtered-word complet)
-Phase 3  -> TERMINEE (les 7 étapes closes, voir détail plus bas)
+Phase 3  -> TERMINEE ET TESTEE EN REEL cette session (les 7 étapes closes,
+    voir détail plus bas ; flow de connexion Discord validé de bout en
+    bout, plus seulement une revue théorique).
 Phase 4  -> DEMARREE :
-    - filtered-word : déjà existant depuis Phase 2, guards Phase 3
-      appliqués cette session (JwtGuard + GuildGuard), considéré FAIT et
-      protégé.
-    - guild (GET /guilds/:guildId)        -> PAS COMMENCE, prochaine étape
-      concrète (permettra d'afficher les noms des serveurs dans le
-      dashboard, actuellement seuls les IDs sont connus via le JWT)
+    - filtered-word : FAIT, protégé (JwtGuard + GuildGuard).
+    - guild (GET /guilds/:guildId) -> FAIT ET TESTE EN REEL cette session
+      (voir section dédiée plus bas). Répond bien { guild_id, guild_name }.
     - members, logs, guild-config, exempted-roles, leveling, moderation,
       embeds, birthdays, moc -> PAS COMMENCES (dossiers avec juste un .keep)
 
@@ -215,21 +214,93 @@ Rappels pour un test réel (hors scope code, à vérifier manuellement) :
 
 
 ========================================
+JOURNAL DE SESSION — 2026-07-31
+Suite de la session du 2026-07-29
+========================================
+
+Point de départ de session : relecture des 3 fichiers .txt racine pour
+resituer l'état exact (Phase 3 terminée sur le papier mais jamais
+testée en réel, Phase 4 seulement démarrée avec filtered-word).
+
+--- Module guild (Phase 4, item 16) ---
+
+Fichiers créés, gabarit identique à filtered-word mais sans DTO (lecture
+seule -- les lignes de la table guild sont remplies manuellement en
+base, pas de create/delete exposés par l'API) :
+
+  apps/api/src/modules/guild/guild.module.ts
+    TypeOrmModule.forFeature([Guild]), déclare GuildController/GuildService.
+
+  apps/api/src/modules/guild/guild.service.ts
+    Une seule méthode findOne(guildId) -> guildRepository.findOneBy({ guild_id: guildId }),
+    NotFoundException si absent.
+
+  apps/api/src/modules/guild/guild.controller.ts
+    @Controller('guilds') @UseGuards(JwtGuard, GuildGuard), @Get(':guildId').
+
+  apps/api/src/app.module.ts
+    GuildModule ajouté aux imports.
+
+Ecrit par l'utilisateur, vérifié par l'assistant : RAS du premier coup,
+aucune correction nécessaire sur ces 4 fichiers.
+
+Discussion en amont : la "décision" notée dans le journal du 2026-07-29
+sur le remplissage manuel de la table guild n'est pas vraiment une
+décision actée -- c'était une nécessité de test au tout début du
+projet. Question posée : faut-il l'automatiser (écouter guildCreate
+côté bot) vu que le bot est privé et limité à 2 serveurs fixes ?
+Conclusion : non, pas nécessaire tant que apps/bot n'existe pas et que
+le nombre de serveurs reste fixe -- ce serait de la complexité sans
+bénéfice concret (YAGNI). Seul risque identifié : guild_name peut devenir
+obsolète si un serveur est renommé sur Discord sans mise à jour manuelle
+en base ; solution éventuelle plus tard : un handler guildUpdate côté
+bot, pas une automatisation de la création.
+
+--- Test réel du flow complet (jamais fait avant cette session) ---
+
+1er essai : après clic "Autoriser" sur Discord -> 500 Internal server
+error. Log terminal :
+  TypeORMError: String-array "select" syntax has been removed.
+  Use object syntax instead, e.g. select: { id: true, name: true }.
+
+Cause : apps/api/src/modules/auth/auth.service.ts, méthode
+fetchManagedGuildIds(), appel guildRepository.find() utilisait
+select: ['guild_id'] (ancienne syntaxe tableau de strings, supprimée
+depuis TypeORM 0.3). Corrigé par l'utilisateur en select: { guild_id: true }.
+Bug de version TypeORM, pas de logique -- un seul token à changer, RAS
+après correction.
+
+2e essai après fix : succès. Chaîne complète validée en conditions
+réelles :
+  - /auth/discord -> redirection Discord OK
+  - autorisation -> callback -> cookie `token` posé (confirmé DevTools)
+  - redirection finale vers DASHBOARD_URL (localhost:5173) en
+    ERR_CONNECTION_REFUSED -> attendu et normal, le front n'est pas
+    lancé, ça n'empêche pas la pose du cookie (res.cookie() s'exécute
+    avant res.redirect() dans handleDiscordCallback).
+  - GET /auth/me -> { sub, username, guilds: [...], iat, exp } --
+    iat/exp confirmés comme ajoutés automatiquement par jwtService.sign()
+    (émission + expiration du JWT, cohérent avec expiresIn: '7d').
+  - GET /guilds/1105249695644786791 -> { "guild_id": "1105249695644786791",
+    "guild_name": "Wystrelia" } -- module guild validé en réel.
+
+Phase 3 est donc maintenant réellement terminée et vérifiée (plus
+seulement "sur le papier" comme noté le 2026-07-29), et le module guild
+est fait et testé.
+
+
+========================================
 PROCHAINE ÉTAPE CONCRÈTE À LA REPRISE
 ========================================
 
-1. Tester le flow de connexion en conditions réelles (npm run dev:api,
-   cliquer /auth/discord dans un navigateur) -- pas encore fait cette
-   session, seulement une revue théorique du code.
-2. Construire le module guild (Phase 4, item 16) : GET /guilds/:guildId
-   -- comblera le manque de noms de serveurs identifié au point 2 de
-   l'analyse ci-dessus. Répliquer le gabarit filtered-word (module +
-   service + controller), en pensant à appliquer @UseGuards(JwtGuard,
-   GuildGuard) dès l'écriture (Étape 7 de la Phase 3 s'applique
-   systématiquement à partir de maintenant).
-3. Continuer Phase 4 dans l'ordre de la roadmap : members, logs,
-   guild-config, exempted-roles, leveling, moderation, puis
+1. Continuer Phase 4 dans l'ordre de la roadmap, à partir de members
+   (Phase 4, item 17) : GET /guilds/:guildId/members. Même gabarit que
+   filtered-word/guild, guards JwtGuard + GuildGuard dès l'écriture.
+2. Puis logs, guild-config, exempted-roles, leveling, moderation, puis
    embeds/birthdays/moc si le temps le permet.
+3. Point de vigilance pour tous les modules suivants : bien utiliser la
+   syntaxe objet TypeORM 0.3 pour toute option `select` (pas de tableau
+   de strings), cf. le bug rencontré sur auth.service.ts cette session.
 
 Rappel méthode de travail à conserver : l'assistant explique le concept
 avant le code, propose le code en suggestion uniquement (jamais
