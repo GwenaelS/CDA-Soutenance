@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GuildModule } from './modules/guild/guild.module';
 import { MemberModule } from './modules/member/member.module';
+import { LogModule } from './modules/log/log.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MemberModule } from './modules/member/member.module';
     AuthModule,
     GuildModule,
     MemberModule,
+    LogModule,
     FilteredWordModule,
   ],
   controllers: [],
