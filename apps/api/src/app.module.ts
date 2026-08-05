@@ -4,6 +4,7 @@ import { FilteredWordModule } from './modules/filtered-word/filtered-word.module
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GuildModule } from './modules/guild/guild.module';
+import { MemberModule } from './modules/member/member.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { GuildModule } from './modules/guild/guild.module';
     DatabaseModule,
     AuthModule,
     GuildModule,
+    MemberModule,
     FilteredWordModule,
   ],
   controllers: [],
