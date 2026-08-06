@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { GuildModule } from './modules/guild/guild.module';
 import { MemberModule } from './modules/member/member.module';
 import { LogModule } from './modules/log/log.module';
+import { GuildConfigModule } from './modules/guild-config/guild-config.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { LogModule } from './modules/log/log.module';
     GuildModule,
     MemberModule,
     LogModule,
+    GuildConfigModule,
     FilteredWordModule,
   ],
   controllers: [],
