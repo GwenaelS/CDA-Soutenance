@@ -8,6 +8,7 @@ import { MemberModule } from './modules/member/member.module';
 import { LogModule } from './modules/log/log.module';
 import { GuildConfigModule } from './modules/guild-config/guild-config.module';
 import { ExemptedRoleModule } from './modules/exempted-role/exempted-role.module';
+import { LevelConfigModule } from './modules/level-config/level-config.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ExemptedRoleModule } from './modules/exempted-role/exempted-role.module
     GuildConfigModule,
     FilteredWordModule,
     ExemptedRoleModule,
+    LevelConfigModule,
   ],
   controllers: [],
   providers: [],
