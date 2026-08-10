@@ -9,6 +9,7 @@ import { LogModule } from './modules/log/log.module';
 import { GuildConfigModule } from './modules/guild-config/guild-config.module';
 import { ExemptedRoleModule } from './modules/exempted-role/exempted-role.module';
 import { LevelConfigModule } from './modules/level-config/level-config.module';
+import { LevelRewardModule } from './modules/level-reward/level-reward.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LevelConfigModule } from './modules/level-config/level-config.module';
     FilteredWordModule,
     ExemptedRoleModule,
     LevelConfigModule,
+    LevelRewardModule,
   ],
   controllers: [],
   providers: [],

@@ -4,10 +4,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { Guild } from "./guild.entity";
 
 @Entity("level_reward")
+@Unique("Unique_level_reward", ["guild", "level"])
 export class Level_reward {
   @PrimaryGeneratedColumn()
   id!: number;
