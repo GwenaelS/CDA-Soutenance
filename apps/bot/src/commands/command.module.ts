@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Channel_log, Guild_config, Log } from '@wystrelia/shared';
+import { Guild_config, Log, Log_channel } from '@wystrelia/shared';
 import { AuditService } from 'src/utils/audit.service';
 import { BanCommand } from './ban.command';
 import { CommandRegistryService } from './command-registry.service';
@@ -19,7 +19,7 @@ const COMMAND_PROVIDERS = [
 ];
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Log, Channel_log, Guild_config])],
+  imports: [TypeOrmModule.forFeature([Log, Log_channel, Guild_config])],
   providers: [
     ...COMMAND_PROVIDERS,
     AuditService,

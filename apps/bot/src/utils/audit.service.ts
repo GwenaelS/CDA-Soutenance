@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  Channel_log,
   Guild as GuildEntity,
   Guild_config,
   Log,
+  Log_channel,
   LogType,
 } from '@wystrelia/shared';
 import { EmbedBuilder, Guild as DiscordGuild } from 'discord.js';
@@ -27,15 +27,15 @@ export class AuditService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
-    @InjectRepository(Channel_log)
-    private readonly channelLogRepository: Repository<Channel_log>,
+    @InjectRepository(Log_channel)
+    private readonly channelLogRepository: Repository<Log_channel>,
     @InjectRepository(Guild_config)
     private readonly guildConfigRepository: Repository<Guild_config>,
   ) {}
 
   /**
    * Écrit une entrée d'audit immuable en base puis poste un embed de log
-   * dans le salon dédié au type d'action (`Channel_log`) ou, à défaut, dans
+   * dans le salon dédié au type d'action (`Log_channel`) ou, à défaut, dans
    * le salon de logs global du serveur (`Guild_config.all_log_channel_id`).
    */
   async record(params: AuditEntryParams): Promise<void> {
