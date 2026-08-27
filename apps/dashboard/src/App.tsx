@@ -9,6 +9,7 @@ import { ModerationPage } from './features/moderation/ModerationPage'
 import { LogsPage } from './features/logs/LogsPage'
 import { LevelingPage } from './features/leveling/LevelingPage'
 import { LoginPage } from './features/auth/LoginPage'
+import { ParamsPage } from './features/parametres/ParametrePage'
 
 import {
   MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
@@ -111,6 +112,7 @@ function App() {
   const isWarningsPage = parts[3] === 'warnings'
   const isLogsPage = parts[3] === 'logs'
   const isLevelingPage = parts[3] === 'leveling'
+  const isParamsPage = parts[3] === 'settings'
 
   useEffect(() => {
     const guildId = guildIdStr ? parseInt(guildIdStr) : 1
@@ -147,6 +149,8 @@ function App() {
               ? '/logs'
               : isLevelingPage
               ? '/leveling'
+              : isParamsPage
+              ? '/settings'
               : ''
             navigate(`/dashboard/${server.id}${suffix}`)
           }}
@@ -166,6 +170,8 @@ function App() {
               <LogsPage server={selectedServer} />
             ) : isLevelingPage ? (
               <LevelingPage server={selectedServer} />
+              ) : isParamsPage ? (
+              <ParamsPage server={selectedServer} />
             ) : (
               <StatsPage server={selectedServer} />
             )}
