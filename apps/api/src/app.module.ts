@@ -11,6 +11,7 @@ import { ExemptedRoleModule } from './modules/exempted-role/exempted-role.module
 import { LevelConfigModule } from './modules/level-config/level-config.module';
 import { LevelRewardModule } from './modules/level-reward/level-reward.module';
 import { WarningModule } from './modules/warning/warning.module';
+import { LogChannelModule } from './modules/log-channel/log-channel.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { WarningModule } from './modules/warning/warning.module';
     GuildModule,
     MemberModule,
     LogModule,
+    LogChannelModule,
     GuildConfigModule,
     FilteredWordModule,
     ExemptedRoleModule,
