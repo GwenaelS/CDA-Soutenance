@@ -16,7 +16,7 @@ export class Automatic_role {
   role_id!: string;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.automatic_roles)
+  @ManyToOne(() => Guild, (guild) => guild.automatic_roles, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

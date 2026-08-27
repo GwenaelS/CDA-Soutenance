@@ -28,7 +28,7 @@ export class Level_config {
   xp_cooldown_sec!: number;
 
   // ------------- Relations 1,1 -------------
-  @OneToOne(() => Guild, (guild) => guild.level_config)
+  @OneToOne(() => Guild, (guild) => guild.level_config, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

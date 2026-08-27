@@ -19,7 +19,7 @@ export class Birthday {
   date_post!: Date | null;
 
   // ------------- Relations 0,1 -------------
-  @OneToOne(() => Member, (member) => member.birthdays)
+  @OneToOne(() => Member, (member) => member.birthday, { nullable: false })
   @JoinColumn({ name: "member_id" })
   member!: Member;
 }

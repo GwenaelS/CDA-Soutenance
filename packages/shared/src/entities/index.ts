@@ -14,6 +14,5 @@ export * from "./log-channel.entity";
 export * from "./log.entity";
 export * from "./member.entity";
 export * from "./moc-channel.entity";
-export * from "./mute.entity";
 export * from "./twitch.entity";
 export * from "./warning.entity";

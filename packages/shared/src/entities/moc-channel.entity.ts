@@ -31,7 +31,7 @@ export class Moc_channel {
   allow_text!: boolean;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.moc_channels)
+  @ManyToOne(() => Guild, (guild) => guild.moc_channels, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

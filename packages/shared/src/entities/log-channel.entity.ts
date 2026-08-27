@@ -20,7 +20,7 @@ export class Channel_log {
   channel_id!: string;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.channelLogs)
+  @ManyToOne(() => Guild, (guild) => guild.channelLogs, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

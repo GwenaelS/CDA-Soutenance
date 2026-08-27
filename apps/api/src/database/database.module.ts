@@ -15,7 +15,6 @@ import {
   Log,
   Member,
   Moc_channel,
-  Mute,
   Twitch,
   Warning,
 } from '@wystrelia/shared';
@@ -45,7 +44,6 @@ import {
           Log,
           Member,
           Moc_channel,
-          Mute,
           Twitch,
           Warning,
         ],

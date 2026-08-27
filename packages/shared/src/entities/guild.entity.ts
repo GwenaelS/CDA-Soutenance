@@ -15,7 +15,7 @@ import { Log } from "./log.entity";
 @Entity("guild")
 export class Guild {
   // Snowflake Discord = clé naturelle, fournie par Discord (pas auto-générée)
-  @PrimaryColumn({ type: "bigint", unsigned: true })
+  @PrimaryColumn({ type: "bigint", unsigned: true, nullable: false })
   guild_id!: string;
 
   @Column({ type: "varchar", length: 100 })

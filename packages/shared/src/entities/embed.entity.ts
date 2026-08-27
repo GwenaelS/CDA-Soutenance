@@ -22,7 +22,7 @@ export class Embed {
   color!: string | null;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.members)
+  @ManyToOne(() => Guild, (guild) => guild.embeds, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

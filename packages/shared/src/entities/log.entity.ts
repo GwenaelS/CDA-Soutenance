@@ -25,11 +25,17 @@ export class Log {
   @Column({ type: "varchar", length: 255 })
   reason!: string;
 
+  @Column({ type: "int", nullable: true })
+  duration!: number | null;
+
+  @Column({ type: "datetime", nullable: true })
+  expire_at!: Date | null;
+
   @Column({ type: "datetime" })
   datetime!: Date;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.logs)
+  @ManyToOne(() => Guild, (guild) => guild.logs, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

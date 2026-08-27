@@ -21,7 +21,7 @@ export class Level_reward {
   role_id!: string;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.level_rewards)
+  @ManyToOne(() => Guild, (guild) => guild.level_rewards, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

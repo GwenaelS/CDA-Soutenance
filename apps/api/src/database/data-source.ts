@@ -13,7 +13,6 @@ import {
   Log,
   Member,
   Moc_channel,
-  Mute,
   Twitch,
   Warning,
 } from '@wystrelia/shared';
@@ -39,7 +38,6 @@ export const AppDataSource = new DataSource({
     Log,
     Member,
     Moc_channel,
-    Mute,
     Twitch,
     Warning,
   ],

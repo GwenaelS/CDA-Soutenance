@@ -16,7 +16,7 @@ export class Twitch {
   twitch_username!: string;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.twitch_channels)
+  @ManyToOne(() => Guild, (guild) => guild.twitch_channels, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

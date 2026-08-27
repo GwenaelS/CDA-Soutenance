@@ -15,8 +15,11 @@ export class Filtered_word {
   @Column({ type: "varchar", length: 255 })
   word!: string;
 
+  @Column({ type: "datetime" })
+  time!: Date;
+
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.filtered_words)
+  @ManyToOne(() => Guild, (guild) => guild.filtered_words, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

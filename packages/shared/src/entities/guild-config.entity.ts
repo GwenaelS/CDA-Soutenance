@@ -28,7 +28,7 @@ export class Guild_config {
   twitch_channel_id!: string | null;
 
   // ------------- Relations 1,1 -------------
-  @OneToOne(() => Guild, (guild) => guild.guild_config)
+  @OneToOne(() => Guild, (guild) => guild.guild_config, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }
