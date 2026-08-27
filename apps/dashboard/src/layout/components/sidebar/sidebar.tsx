@@ -17,7 +17,8 @@ export default function ServerList({
             title: "GÉNÉRAL",
             links: [
                 { name: "Statistiques" },
-                { name: "Liste des membres" }
+                { name: "Liste des membres" },
+                { name: "Paramétres" }
             ]
         },
         {
@@ -74,6 +75,8 @@ export default function ServerList({
                                             if (onNavigate) {
                                                 const suffix = currentPath?.endsWith("/members")
                                                     ? "/members"
+                                                    : currentPath?.endsWith("/settings")
+                                                    ? "/settings"
                                                     : currentPath?.endsWith("/filterword")
                                                     ? "/filterword"
                                                     : currentPath?.endsWith("/warnings")
@@ -141,6 +144,8 @@ export default function ServerList({
                                             if (onNavigate) {
                                                 const suffix = currentPath?.endsWith("/members")
                                                     ? "/members"
+                                                    : currentPath?.endsWith("/settings")
+                                                    ? "/settings"
                                                     : currentPath?.endsWith("/filterword")
                                                     ? "/filterword"
                                                     : currentPath?.endsWith("/warnings")
@@ -176,6 +181,7 @@ export default function ServerList({
                                 <ul className="space-y-1 animate-fadeIn">
                                     {category.links.map((link) => {
                                         const isMembersLink = link.name === "Liste des membres";
+                                        const isSettingsLink = link.name === "Paramétres";
                                         const isStatsLink = link.name === "Statistiques";
                                         const isFilterwordLink = link.name === "Mots-filtrés";
                                         const isWarningsLink = link.name === "Avertissements";
@@ -183,6 +189,8 @@ export default function ServerList({
                                         const isLevelingLink = link.name === "Système d'expérience";
                                         const path = isMembersLink
                                             ? `/dashboard/${selectedServer.id}/members`
+                                            : isSettingsLink
+                                            ? `/dashboard/${selectedServer.id}/settings`
                                             : isFilterwordLink
                                             ? `/dashboard/${selectedServer.id}/filterword`
                                             : isWarningsLink
@@ -195,6 +203,8 @@ export default function ServerList({
 
                                         const isActive = isMembersLink
                                             ? currentPath?.endsWith("/members")
+                                            : isSettingsLink
+                                            ? currentPath?.endsWith("/settings")
                                             : isFilterwordLink
                                             ? currentPath?.endsWith("/filterword")
                                             : isWarningsLink
@@ -206,6 +216,7 @@ export default function ServerList({
                                             : isStatsLink &&
                                               currentPath?.startsWith("/dashboard/") &&
                                               !currentPath?.endsWith("/members") &&
+                                              !currentPath?.endsWith("/settings") &&
                                               !currentPath?.endsWith("/filterword") &&
                                               !currentPath?.endsWith("/warnings") &&
                                               !currentPath?.endsWith("/logs") &&
