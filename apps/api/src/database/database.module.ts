@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Automatic_role,
   Birthday,
-  Channel_log,
+  Log_channel,
   Embed,
   Exempted_role,
   Filtered_word,
@@ -40,7 +40,7 @@ import {
           Guild,
           Level_config,
           Level_reward,
-          Channel_log,
+          Log_channel,
           Log,
           Member,
           Moc_channel,

@@ -3,7 +3,7 @@ import { Guild_config } from "./guild-config.entity";
 import { Level_config } from "./level-config.entity";
 import { Level_reward } from "./level-reward.entity";
 import { Member } from "./member.entity";
-import { Channel_log } from "./log-channel.entity";
+import { Log_channel } from "./log-channel.entity";
 import { Filtered_word } from "./filtered-word.entity";
 import { Exempted_role } from "./exempted-role.entity";
 import { Automatic_role } from "./automatic-role.entity";
@@ -38,8 +38,8 @@ export class Guild {
   @OneToMany(() => Log, (log) => log.guild)
   logs!: Log[];
 
-  @OneToMany(() => Channel_log, (channelLog) => channelLog.guild)
-  channelLogs!: Channel_log[];
+  @OneToMany(() => Log_channel, (logChannel) => logChannel.guild)
+  logsChannels!: Log_channel[];
 
   @OneToMany(() => Filtered_word, (filteredWord) => filteredWord.guild)
   filtered_words!: Filtered_word[];

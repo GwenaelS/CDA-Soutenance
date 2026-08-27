@@ -4,12 +4,14 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { LogType } from "../enum";
 import { Guild } from "./guild.entity";
 
-@Entity("channel_log")
-export class Channel_log {
+@Entity("log_channel")
+@Unique("Unique_log_channel", ["guild", "type"])
+export class Log_channel {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -20,7 +22,7 @@ export class Channel_log {
   channel_id!: string;
 
   // ------------- Relations n,1 -------------
-  @ManyToOne(() => Guild, (guild) => guild.channelLogs, { nullable: false })
+  @ManyToOne(() => Guild, (guild) => guild.logsChannels, { nullable: false })
   @JoinColumn({ name: "guild_id" })
   guild!: Guild;
 }

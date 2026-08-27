@@ -6,10 +6,10 @@ import { Guild } from '@wystrelia/shared';
 import { In, Repository } from 'typeorm';
 
 // Discord permissions are a bitfield: each permission is one specific bit.
-// MANAGE_GUILD is bit 5 -> 0x20 in hex -> 32 in decimal.
+// ADMINISTRATOR is bit 3 -> 0x8 in hex -> 8 in decimal.
 // BigInt (the `n` suffix) is needed because a user's combined permissions
 // can exceed what a regular JS `number` can represent precisely.
-const MANAGE_GUILD = 0x20n;
+const ADMINISTRATOR = 0x8n;
 
 // Shapes of the JSON responses Discord's API sends back,
 // just enough fields to type what we actually use here
@@ -98,17 +98,18 @@ export class AuthService {
   }
 
   // Step 4 : lists the user's guilds, keeps only the ones where they have
-  // MANAGE_GUILD permission (servers they're allowed to configure the bot on)
+  // ADMINISTRATOR permission (servers they're allowed to configure the bot on)
   private async fetchManagedGuildIds(accessToken: string): Promise<string[]> {
     const response = await fetch('https://discord.com/api/users/@me/guilds', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const guilds = (await response.json()) as DiscordGuild[];
 
-    // Step A : keep only guilds where the user has MANAGE_GUILD
+    // Step A : keep only guilds where the user has ADMINISTRATOR
     const managedGuildIds = guilds
       .filter(
-        (guild) => (BigInt(guild.permissions) & MANAGE_GUILD) === MANAGE_GUILD,
+        (guild) =>
+          (BigInt(guild.permissions) & ADMINISTRATOR) === ADMINISTRATOR,
       )
       .map((guild) => guild.id);
 
