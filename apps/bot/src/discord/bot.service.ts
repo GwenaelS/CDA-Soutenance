@@ -36,10 +36,12 @@ export class BotService implements OnApplicationBootstrap, OnModuleDestroy {
 
     this.client.user?.setPresence({
       status: 'dnd',
-      activities: [{
-        name: '/help | Private bot',
-        type: 1
-      }]
+      activities: [
+        {
+          name: '/help | Private bot',
+          type: 1,
+        },
+      ],
     });
   }
 

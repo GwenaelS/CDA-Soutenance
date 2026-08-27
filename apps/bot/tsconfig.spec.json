@@ -2,9 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
+    "resolvePackageJsonExports": false,
     "rootDir": ".",
-    "types": ["node", "jest"],
-    "ignoreDeprecations": "6.0"
+    "types": ["node", "jest"]
   },
   "include": [
     "src/**/*",

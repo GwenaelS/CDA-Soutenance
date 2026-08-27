@@ -16,7 +16,6 @@ import {
   Log,
   Member,
   Moc_channel,
-  Mute,
   Twitch,
   Warning,
 } from '@wystrelia/shared';
@@ -37,6 +36,10 @@ import { EventModule } from './events/event.module';
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
+        ssl:
+          config.get<string>('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : undefined,
         entities: [
           Automatic_role,
           Birthday,
@@ -51,7 +54,6 @@ import { EventModule } from './events/event.module';
           Log,
           Member,
           Moc_channel,
-          Mute,
           Twitch,
           Warning,
         ],
@@ -65,4 +67,4 @@ import { EventModule } from './events/event.module';
     EventModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

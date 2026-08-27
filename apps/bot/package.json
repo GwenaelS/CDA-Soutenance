@@ -13,6 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "deploy-commands": "ts-node -r tsconfig-paths/register src/deploy-commands.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -26,6 +27,7 @@
     "@nestjs/typeorm": "^11.0.2",
     "@wystrelia/shared": "*",
     "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2",
     "mysql2": "^3.22.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -61,9 +63,10 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleDirectories": ["node_modules", ".."],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/../tsconfig.spec.json" }]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
