@@ -76,7 +76,7 @@ export function LevelingPage({ server }: { server: DashboardServer }) {
           <h1 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-1">
             Système d'expérience
           </h1>
-          <p className="text-base font-semibold text-[#8e7aab] mt-1.5">
+          <p className="text-sm font-semibold text-[#8e7aab] mt-1.5">
             Configure les règles de progression du royaume pour{" "}
             <span className="text-[#25f8ff]">{server.name}</span>
           </p>

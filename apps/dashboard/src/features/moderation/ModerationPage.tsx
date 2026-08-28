@@ -59,7 +59,7 @@ export function ModerationPage({ server }: { server: DashboardServer }) {
           <h1 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-1">
             Avertissements
           </h1>
-          <p className="text-base font-semibold text-[#8e7aab] mt-1.5">
+          <p className="text-sm font-semibold text-[#8e7aab] mt-1.5">
             Historique des sanctions émises dans le royaume
           </p>
         </div>

@@ -98,10 +98,6 @@ export default function ServerList({
                             })}
                         </div>
                     </div>
-
-                    <button className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 flex items-center justify-center hover:scale-105 transition shadow-md group cursor-pointer">
-                        <Settings size={20} className="text-slate-300 group-hover:text-cyan-300 transition-colors" />
-                    </button>
                 </div>
 
                 <div className="w-[240px] bg-[#140030] flex flex-col h-full py-6 px-4 overflow-y-auto shrink-0 select-none">

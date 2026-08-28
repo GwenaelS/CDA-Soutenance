@@ -53,11 +53,11 @@ export function LogsPage({ server }: { server: DashboardServer }) {
   return (
     <div className="space-y-6 text-[#dcb6fb]">
       <div>
-        <span className="text-base font-bold text-[#8e7aab] uppercase tracking-wider">
+        <span className="text-[11px] font-bold text-[#8e7aab] tracking-widest uppercase">
           Modération / Logs
         </span>
-        <h1 className="text-4xl font-extrabold text-[#cfd9e8] mt-1.5 tracking-tight">Logs</h1>
-        <p className="text-base font-semibold text-[#8e7aab] mt-1.5">
+        <h1 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-1">Logs</h1>
+        <p className="text-sm font-semibold text-[#8e7aab] mt-1.5">
           Activité récente du royaume • {logs.length} derniers événements
         </p>
       </div>

@@ -10,7 +10,7 @@ export function ParamsPage({ server }: { server: DashboardServer }) {
         <h1 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-1">
           Paramètres
         </h1>
-        <p className="text-base font-semibold text-[#8e7aab] mt-1.5">
+        <p className="text-sm font-semibold text-[#8e7aab] mt-1.5">
           Accès aux paramètres du serveur <span className="text-[#25f8ff]">{server.name}</span>
         </p>
       </div>
