@@ -53,7 +53,7 @@ export function FilterwordPage({ server }: { server: DashboardServer }) {
 
             <AddFilterWord onAddWord={handleAddWord} />
 
-            <div className="grid grid-cols-1  gap-6 items-start">
+            <div className="grid grid-cols-1 gap-6 items-start">
                 <FilterWordList words={words} onDeleteWord={handleDeleteWord} />
                 <RoleExemptions
                     serverRoles={server.roles || []}

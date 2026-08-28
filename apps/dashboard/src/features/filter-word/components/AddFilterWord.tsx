@@ -13,7 +13,7 @@ export function AddFilterWord({ onAddWord }: AddFilterWorlProps) {
     };
 
     return (
-        <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6">
+        <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6">
             <h2 className="text-base font-bold text-[#cfd9e8]">
                 Ajouter un mot ou une expression
             </h2>

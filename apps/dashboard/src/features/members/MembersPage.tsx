@@ -95,45 +95,47 @@ export function MembersPage({ server }: { server: DashboardServer }) {
 
       <MemberStats stats={stats} />
 
-      <div className="overflow-x-auto bg-[#140030]/50 backdrop-blur-md border border-border/40 rounded-xl overflow-hidden shadow-lg">
-        <table className="min-w-full divide-y divide-border/20 text-left">
-          <thead className="bg-[#0c0020]/40 text-base font-extrabold text-[#8e7aab] tracking-wider uppercase">
-            <tr className="text-[#cfd9e8]">
-              <th className="px-6 py-4">Membres</th>
-              <th className="px-6 py-4">Identifiant Discord</th>
-              <th className="px-6 py-4">Rôles</th>
-              <th className="px-6 py-4">Level</th>
-              <th className="px-6 py-4">Rejoint</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/10">
-            {isLoading ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-[#8e7aab] animate-pulse">
-                  Chargement des membres...
-                </td>
+      <div className=" border border-[#9D4EDD]/75 rounded-xl overflow-hidden shadow-lg">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border/20 text-left">
+            <thead className="bg-[#B100FC]/15 border-b border-[#9D4EDD]/50 text-base font-extrabold text-[#8e7aab] tracking-wider uppercase">
+              <tr className="text-[#dcd7d7]">
+                <th className="px-6 py-4">Membres</th>
+                <th className="px-6 py-4">Identifiant Discord</th>
+                <th className="px-6 py-4">Rôles</th>
+                <th className="px-6 py-4">Level</th>
+                <th className="px-6 py-4">Rejoint</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-red-400">
-                  {error}
-                </td>
-              </tr>
-            ) : paginated.length > 0 ? (
-              paginated.map((m) => <MemberRow key={m.id} member={m} />)
-            ) : (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-[#8e7aab]">
-                  Aucun membre trouvé.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-[#140030]/50 divide-y divide-border/10">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-[#8e7aab] animate-pulse">
+                    Chargement des membres...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-red-400">
+                    {error}
+                  </td>
+                </tr>
+              ) : paginated.length > 0 ? (
+                paginated.map((m) => <MemberRow key={m.id} member={m} />)
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-[#8e7aab]">
+                    Aucun membre trouvé.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="bg-[#0c0020]/20 border-t border-border/10 px-6 py-4 flex items-center justify-between gap-4 select-none">
-          <span className="text-xs font-semibold text-[#8e7aab]">
+        <div className="bg-[#B100FC]/15 border-t border-[#9D4EDD]/50 px-6 py-4 flex items-center justify-between gap-4 select-none">
+          <span className="text-xs font-semibold text-[#dcd7d7]">
             Affichage de {start} à {end} sur {filtered.length} membres
           </span>
           <div className="flex items-center gap-1.5">

@@ -26,7 +26,7 @@ export function MemberGrowthChart({ server }: { server: DashboardServer }) {
   const gridValues = Array.from({ length: 6 }, (_, i) => Math.round(minY + ((maxY - minY) / 5) * i));
 
   return (
-    <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6">
+    <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6">
       <h2 className="text-lg font-bold text-[#cfd9e8]">Croissance des membres</h2>
       <p className="text-xs text-[#8e7aab] mt-0.5">12 derniers mois</p>
 

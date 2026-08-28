@@ -22,7 +22,7 @@ export function RoleExemptions({ serverRoles, exemptedRoles, onAddExemptedRole, 
     const availableRoles = serverRoles.filter((role) => !exemptedRoles.includes(role.name));
 
     return (
-        <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6 space-y-6">
+        <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6 space-y-6">
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-bold text-[#cfd9e8]">

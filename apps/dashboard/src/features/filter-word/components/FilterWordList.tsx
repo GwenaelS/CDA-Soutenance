@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 
 export function FilterWordList({ words, onDeleteWord }: FilterWordListProps) {
     return (
-        <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6 flex flex-col">
+        <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6 flex flex-col">
             <div className="flex justify-between items-center text-base font-bold text-[#8e7aab] uppercase tracking-wider pb-3 border-b border-purple-500/10 mb-4">
                 <span>Mot / Expression</span>
                 <span>Ajouté le</span>

@@ -14,8 +14,8 @@ export function MemberStats({ stats }: { stats: ServerStats }) {
       {cards.map((card, idx) => {
         const Icon = card.i;
         return (
-          <div key={idx} className="group bg-[#140030]/80 border border-border/40 rounded-xl p-5 hover:border-amber-500/40 transition-all duration-300">
-            <div className="flex items-center gap-2.5 text-amber-500">
+          <div key={idx} className="group bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-5 hover:border-cyan-500 transition-all duration-300">
+            <div className="flex items-center gap-2.5 text-cyan-400">
               <Icon size={18} className="p-1 bg-[#0c0020] border border-border/30 rounded w-7 h-7" />
               <span className="text-xs font-bold text-[#8e7aab] uppercase tracking-wider">{card.t}</span>
             </div>

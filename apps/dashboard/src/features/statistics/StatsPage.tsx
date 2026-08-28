@@ -16,10 +16,10 @@ export function StatsPage({ server }: { server: DashboardServer }) {
             <MemberGrowthChart server={server} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6 h-48">
+                <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6 h-48">
                     {/* Autres stats du serveur */}
                 </div>
-                <div className="bg-[#140030]/80 border border-border/40 rounded-xl p-6 h-48">
+                <div className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-6 h-48">
                     {/* Autre section du serveur */}
                 </div>
             </div>
