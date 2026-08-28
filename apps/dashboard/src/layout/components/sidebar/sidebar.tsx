@@ -39,13 +39,13 @@ export default function ServerList({
 
     return (
         <>
-            <button
+            {/* <button
                 className="lg:hidden absolute top-2 left-4 z-50 p-1.5 text-white bg-[#140030] hover:bg-purple-950 border border-border rounded-lg transition-colors cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle Menu"
             >
                 {isOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            </button> */}
 
             <div className={`
                 fixed inset-y-0 left-0 z-40 flex lg:w-[310px] w-[240px] border-r border-border transform transition-transform duration-300 ease-in-out
@@ -226,7 +226,7 @@ export default function ServerList({
                                                         e.preventDefault();
                                                         if (onNavigate) onNavigate(path);
                                                     }}
-                                                    className={`flex items-center text-base font-medium py-1.5 px-2.5 rounded-lg hover:bg-purple-950/10 group transition-all duration-200 ${isActive ? 'text-cyan-400 bg-purple-950/10' : 'text-[#dcb6fb] hover:text-cyan-400'
+                                                    className={`flex items-center text-base font-medium py-1.5 px-2.5 rounded-lg hover:bg-purple-950/10 group transition-all duration-200 ${isActive ? 'bg-linear-to-br from-[#C31EFF] to-[#00BBFF] text-[#FFFFFF] border border-[#00EAFF]/50' : 'text-[#dcb6fb] hover:text-cyan-400'
                                                         }`}
                                                 >
                                                     <span className={`w-1.5 h-1.5 rotate-45 transition-all duration-300 mr-3 inline-block shrink-0 ${isActive ? 'bg-[#00edf5] shadow-[0_0_8px_#00edf5]' : 'bg-[#8e7aab]/40 group-hover:bg-[#00edf5]'

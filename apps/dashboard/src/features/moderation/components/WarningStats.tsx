@@ -21,15 +21,15 @@ export function WarningStats({
       {cards.map((card, idx) => (
         <div
           key={idx}
-          className="bg-[#140030]/80 border border-border/40 rounded-xl p-5 hover:border-purple-500/20 transition-all duration-300"
+          className="bg-[#140030]/50 border border-[#9D4EDD]/75 rounded-xl p-5 hover:border-cyan-500 transition-all duration-300"
         >
-          <span className="text-base font-bold text-[#8e7aab] uppercase tracking-wider">
+          <span className="text-xs font-bold text-[#8e7aab] uppercase tracking-wider">
             {card.label}
           </span>
-          <h3 className="text-4xl font-extrabold text-[#cfd9e8] tracking-tight mt-2">
+          <h3 className="text-3xl font-extrabold text-[#cfd9e8] tracking-tight mt-5">
             {card.value}
           </h3>
-          <p className="text-base font-semibold text-[#8e7aab] mt-1">{card.desc}</p>
+          <p className="text-xs font-semibold mt-1">{card.desc}</p>
         </div>
       ))}
     </div>

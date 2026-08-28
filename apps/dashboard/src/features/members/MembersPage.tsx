@@ -88,7 +88,7 @@ export function MembersPage({ server }: { server: DashboardServer }) {
             placeholder="Rechercher un membre"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#140030]/80 border border-border/40 focus:border-[#25f8ff] rounded-xl py-2 pl-10 pr-4 text-xs font-semibold text-white placeholder-[#8e7aab]/60 outline-none transition-all shadow-inner"
+            className="w-full bg-[#140030]/50 border border-[#9D4EDD]/75 focus:border-[#25f8ff] rounded-xl py-2 pl-10 pr-4 text-xs font-semibold text-white placeholder-[#ffffff]/60 outline-none transition-all shadow-inner"
           />
         </div>
       </div>

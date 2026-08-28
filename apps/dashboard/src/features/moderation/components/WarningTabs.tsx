@@ -22,10 +22,10 @@ export function WarningTabs({
           <button
             key={tab}
             onClick={() => onChangeTab(tab)}
-            className={`px-4 py-2 text-base font-bold uppercase tracking-wider rounded-xl border transition duration-300 cursor-pointer flex items-center gap-2 ${
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl border transition duration-300 cursor-pointer flex items-center gap-2 ${
               isActive
                 ? "bg-purple-600/30 border-cyan-400 text-white shadow-[0_0_8px_rgba(37,248,255,0.2)]"
-                : "border-border/20 text-[#8e7aab] hover:border-border/60 hover:text-white"
+                : "border-[#9D4EDD]/50 text-[#8e7aab] hover:border-border/60 hover:text-white"
             }`}
           >
             <span>{tab}</span>

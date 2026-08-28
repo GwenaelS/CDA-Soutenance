@@ -8,9 +8,9 @@ export function WarningTable({
   onRemoveWarning: (id: string) => void;
 }) {
   return (
-    <div className="overflow-x-auto bg-[#140030]/50 backdrop-blur-md border border-border/40 rounded-xl overflow-hidden shadow-lg">
+    <div className="overflow-x-auto bg-[#140030]/50 backdrop-blur-md border border-[#9D4EDD]/75 rounded-xl overflow-hidden shadow-lg">
       <table className="min-w-full divide-y divide-border/20 text-left">
-        <thead className="bg-[#0c0020]/40 text-base font-extrabold text-[#8e7aab] tracking-wider uppercase">
+        <thead className="bg-[#B100FC]/15 border-b border-[#9D4EDD]/50 text-base font-extrabold text-[#8e7aab] tracking-wider uppercase">
           <tr className="text-[#cfd9e8]">
             <th className="px-6 py-4">Membre</th>
             <th className="px-6 py-4">Raison</th>
