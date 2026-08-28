@@ -10,92 +10,52 @@ import { LogsPage } from './features/logs/LogsPage'
 import { LevelingPage } from './features/leveling/LevelingPage'
 import { LoginPage } from './features/auth/LoginPage'
 import { ParamsPage } from './features/parametres/ParametrePage'
-
-import {
-  MOCK_MEMBERS_WYSTRELIA, MOCK_STATS_WYSTRELIA,
-  MOCK_MEMBERS_VANILLE, MOCK_STATS_VANILLE,
-  MOCK_MEMBERS_DEV, MOCK_STATS_DEV,
-  MOCK_MEMBERS_SIMPLON, MOCK_STATS_SIMPLON,
-  MOCK_ROLES_WYSTRELIA, MOCK_FILTER_CONFIG_WYSTRELIA,
-  MOCK_ROLES_VANILLE, MOCK_FILTER_CONFIG_VANILLE,
-  MOCK_ROLES_DEV, MOCK_FILTER_CONFIG_DEV,
-  MOCK_ROLES_SIMPLON, MOCK_FILTER_CONFIG_SIMPLON,
-  MOCK_WARNINGS_WYSTRELIA, MOCK_WARNINGS_VANILLE,
-  MOCK_WARNINGS_DEV, MOCK_WARNINGS_SIMPLON,
-  MOCK_LOGS_WYSTRELIA, MOCK_LOGS_VANILLE,
-  MOCK_LOGS_DEV, MOCK_LOGS_SIMPLON,
-  MOCK_LEVELING_WYSTRELIA, MOCK_LEVELING_VANILLE,
-  MOCK_LEVELING_DEV, MOCK_LEVELING_SIMPLON
-} from './features/members/data/mockMembers'
-const FAKE_SERVERS: DashboardServer[] = [
-  {
-    id: 1,
-    name: "Wystrelia",
-    icon: "https://api.dicebear.com/7.x/adventurer/svg?seed=chef",
-    gradient: "from-purple-600 to-indigo-600",
-    isActive: true,
-    members: MOCK_MEMBERS_WYSTRELIA,
-    stats: MOCK_STATS_WYSTRELIA,
-    roles: MOCK_ROLES_WYSTRELIA,
-    filterConfig: MOCK_FILTER_CONFIG_WYSTRELIA,
-    warnings: MOCK_WARNINGS_WYSTRELIA,
-    logs: MOCK_LOGS_WYSTRELIA,
-    levelingConfig: MOCK_LEVELING_WYSTRELIA
-  },
-  {
-    id: 2,
-    name: "Monde de Vanille",
-    icon: "https://api.dicebear.com/7.x/bottts/svg?seed=pixel",
-    gradient: "from-orange-500 to-pink-500",
-    isActive: false,
-    members: MOCK_MEMBERS_VANILLE,
-    stats: MOCK_STATS_VANILLE,
-    roles: MOCK_ROLES_VANILLE,
-    filterConfig: MOCK_FILTER_CONFIG_VANILLE,
-    warnings: MOCK_WARNINGS_VANILLE,
-    logs: MOCK_LOGS_VANILLE,
-    levelingConfig: MOCK_LEVELING_VANILLE
-  },
-  {
-    id: 3,
-    name: "Espace Dev",
-    icon: "https://api.dicebear.com/7.x/adventurer/svg?seed=ninja",
-    gradient: "from-emerald-500 to-teal-600",
-    isActive: false,
-    members: MOCK_MEMBERS_DEV,
-    stats: MOCK_STATS_DEV,
-    roles: MOCK_ROLES_DEV,
-    filterConfig: MOCK_FILTER_CONFIG_DEV,
-    warnings: MOCK_WARNINGS_DEV,
-    logs: MOCK_LOGS_DEV,
-    levelingConfig: MOCK_LEVELING_DEV
-  },
-  {
-    id: 4,
-    name: "Simplon Bot",
-    icon: "https://api.dicebear.com/7.x/bottts/svg?seed=sacha",
-    gradient: "from-red-500 to-amber-500",
-    isActive: false,
-    members: MOCK_MEMBERS_SIMPLON,
-    stats: MOCK_STATS_SIMPLON,
-    roles: MOCK_ROLES_SIMPLON,
-    filterConfig: MOCK_FILTER_CONFIG_SIMPLON,
-    warnings: MOCK_WARNINGS_SIMPLON,
-    logs: MOCK_LOGS_SIMPLON,
-    levelingConfig: MOCK_LEVELING_SIMPLON
-  }
-]
+import { apiFetch } from './lib/apiClient'
 
 function App() {
-  const [selectedServer, setSelectedServer] = useState<DashboardServer>(FAKE_SERVERS[0])
+  const [servers, setServers] = useState<DashboardServer[]>([])
+  const [selectedServer, setSelectedServer] = useState<DashboardServer | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
+  // 1. Charger les serveurs depuis l'API au premier rendu
   useEffect(() => {
-    if (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
-      window.history.replaceState({}, '', '/dashboard/1')
-      setCurrentPath('/dashboard/1')
+    async function loadServers() {
+      try {
+        setIsLoading(true)
+        const data = await apiFetch<DashboardServer[]>('/guilds')
+        setServers(data)
+        
+        if (data.length > 0) {
+          setSelectedServer(data[0])
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des serveurs:', error)
+        // Redirection vers le login en cas d'erreur d'authentification
+        if (window.location.pathname !== '/login') {
+          navigate('/login')
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (window.location.pathname !== '/login') {
+      loadServers()
+    } else {
+      setIsLoading(false)
     }
   }, [])
+
+  // 2. Gestion des URLs et de l'historique navigateur
+  useEffect(() => {
+    if (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
+      if (selectedServer) {
+        window.history.replaceState({}, '', `/dashboard/${selectedServer.id}`)
+        setCurrentPath(`/dashboard/${selectedServer.id}`)
+      }
+    }
+  }, [selectedServer])
 
   useEffect(() => {
     const handlePopState = () => {
@@ -114,13 +74,15 @@ function App() {
   const isLevelingPage = parts[3] === 'leveling'
   const isParamsPage = parts[3] === 'settings'
 
+  // Sync du serveur sélectionné depuis l'URL
   useEffect(() => {
-    const guildId = guildIdStr ? parseInt(guildIdStr) : 1
-    const server = FAKE_SERVERS.find(s => s.id === guildId)
-    if (server && server.id !== selectedServer.id) {
-      setSelectedServer(server)
+    if (guildIdStr && servers.length > 0) {
+      const server = servers.find(s => String(s.id) === guildIdStr)
+      if (server && selectedServer?.id !== server.id) {
+        setSelectedServer(server)
+      }
     }
-  }, [guildIdStr, selectedServer.id])
+  }, [guildIdStr, servers, selectedServer?.id])
 
   const navigate = (to: string) => {
     window.history.pushState({}, '', to)
@@ -129,6 +91,28 @@ function App() {
 
   if (currentPath === '/login') {
     return <LoginPage />
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#0c0020] text-white">
+        <p className="animate-pulse">Chargement des données du Dashboard...</p>
+      </div>
+    )
+  }
+
+  if (!selectedServer) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-[#0c0020] text-white space-y-4">
+        <p>Aucun serveur disponible ou session expirée.</p>
+        <button 
+          onClick={() => navigate('/login')}
+          className="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition"
+        >
+          Se connecter
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -154,7 +138,7 @@ function App() {
               : ''
             navigate(`/dashboard/${server.id}${suffix}`)
           }}
-          servers={FAKE_SERVERS}
+          servers={servers}
           currentPath={currentPath}
           onNavigate={navigate}
         />
@@ -170,7 +154,7 @@ function App() {
               <LogsPage server={selectedServer} />
             ) : isLevelingPage ? (
               <LevelingPage server={selectedServer} />
-              ) : isParamsPage ? (
+            ) : isParamsPage ? (
               <ParamsPage server={selectedServer} />
             ) : (
               <StatsPage server={selectedServer} />
