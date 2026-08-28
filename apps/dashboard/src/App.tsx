@@ -18,6 +18,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
+  const navigate = (to: string) => {
+    window.history.pushState({}, '', to)
+    setCurrentPath(to)
+  }
+
   // 1. Charger les serveurs depuis l'API au premier rendu
   useEffect(() => {
     async function loadServers() {
@@ -83,11 +88,6 @@ function App() {
       }
     }
   }, [guildIdStr, servers, selectedServer?.id])
-
-  const navigate = (to: string) => {
-    window.history.pushState({}, '', to)
-    setCurrentPath(to)
-  }
 
   if (currentPath === '/login') {
     return <LoginPage />

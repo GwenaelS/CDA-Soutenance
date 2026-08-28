@@ -10,22 +10,30 @@ export class MemberService {
     private readonly memberRepository: Repository<Member>,
   ) {}
 
-  // Return all members of a guild
-  findAll(guildId: string): Promise<Member[]> {
+  // Renvoie tous les membres d'un serveur
+  async findAll(guildId: string): Promise<Member[]> {
     return this.memberRepository.find({
       where: { guild: { guild_id: guildId } },
+      relations: ['guild'], // Requis par TypeORM pour joindre la table Guild
     });
   }
 
-  // Return a single member of a guild
+  // Renvoie un membre spécifique d'un serveur
   async findOne(guildId: string, discordUserId: string): Promise<Member> {
-    const member = await this.memberRepository.findOneBy({
-      discord_user_id: discordUserId,
-      guild: { guild_id: guildId },
+    const member = await this.memberRepository.findOne({
+      where: {
+        discord_user_id: discordUserId,
+        guild: { guild_id: guildId },
+      },
+      relations: ['guild'],
     });
+
     if (!member) {
-      throw new NotFoundException(`Member ${discordUserId} not found`);
+      throw new NotFoundException(
+        `Membre avec l'ID ${discordUserId} introuvable sur le serveur ${guildId}`,
+      );
     }
+
     return member;
   }
 }

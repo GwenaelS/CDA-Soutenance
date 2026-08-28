@@ -9,12 +9,12 @@ export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
   @Get()
-  findAll(@Param('guildId') guildId: string) {
+  async findAll(@Param('guildId') guildId: string) {
     return this.memberService.findAll(guildId);
   }
 
   @Get(':discordUserId')
-  findOne(
+  async findOne(
     @Param('guildId') guildId: string,
     @Param('discordUserId') discordUserId: string,
   ) {
