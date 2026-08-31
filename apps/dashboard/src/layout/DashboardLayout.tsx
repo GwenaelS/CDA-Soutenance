@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router'
 import type { DashboardServer } from '@wystrelia/shared/types'
 import { Header } from './components/header/Header'
 import ServerList from './components/sidebar/sidebar'
