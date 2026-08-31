@@ -17,24 +17,21 @@ export class GuildLifecycleListener implements OnModuleInit {
 
     client.once(Events.ClientReady, (readyClient) => {
       const guilds = [...readyClient.guilds.cache.values()];
-      Promise.all(guilds.map((guild) => this.guildSync.upsert(guild))).catch(
-        (err) =>
-          this.logger.error(
-            'Erreur lors de la synchronisation des serveurs',
-            err,
-          ),
+      Promise.all(guilds.map((guild) => this.syncGuild(guild))).catch((err) =>
+        this.logger.error(
+          'Erreur lors de la synchronisation des serveurs',
+          err,
+        ),
       );
     });
 
     client.on(Events.GuildCreate, (guild: Guild) => {
-      this.guildSync
-        .upsert(guild)
-        .catch((err) =>
-          this.logger.error(
-            `Erreur lors de la synchronisation du serveur ${guild.id}`,
-            err,
-          ),
-        );
+      this.syncGuild(guild).catch((err) =>
+        this.logger.error(
+          `Erreur lors de la synchronisation du serveur ${guild.id}`,
+          err,
+        ),
+      );
     });
 
     client.on(Events.GuildDelete, (guild: Guild) => {
@@ -42,5 +39,10 @@ export class GuildLifecycleListener implements OnModuleInit {
       // le retrait. À revoir si ce flag est ajouté au schéma.
       this.logger.log(`Bot retiré du serveur ${guild.id} (${guild.name})`);
     });
+  }
+
+  private async syncGuild(guild: Guild): Promise<void> {
+    await this.guildSync.upsert(guild);
+    await this.guildSync.syncMembers(guild);
   }
 }
