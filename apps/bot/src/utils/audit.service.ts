@@ -104,9 +104,46 @@ export class AuditService {
     });
     if (channelLog) return channelLog.channel_id;
 
+    return this.getGlobalLogChannelId(guildId);
+  }
+
+  async getGlobalLogChannelId(guildId: string): Promise<string | null> {
     const config = await this.guildConfigRepository.findOne({
       where: { guild: { guild_id: guildId } },
     });
     return config?.all_log_channel_id ?? null;
+  }
+
+  /**
+   * Poste un embed de log qui ne correspond pas à une entrée `Log` formelle
+   * (pas de cible/raison de modération à proprement parler) — auto-modération
+   * (mot interdit, lien, invitation) ou événements sans `LogType` dédié
+   * (server mute/unmute). Utilise le salon de logs global du serveur.
+   */
+  async postSimpleEmbed(
+    guild: DiscordGuild,
+    title: string,
+    fields: { name: string; value: string; inline?: boolean }[],
+  ): Promise<void> {
+    const channelId = await this.getGlobalLogChannelId(guild.id);
+    if (!channelId) return;
+
+    const channel = await guild.channels.fetch(channelId).catch(() => null);
+    if (!channel || !channel.isTextBased()) return;
+
+    const embed = new EmbedBuilder()
+      .setTitle(title)
+      .addFields(fields)
+      .setColor(0xfee75c)
+      .setTimestamp();
+
+    await channel
+      .send({ embeds: [embed] })
+      .catch((err) =>
+        this.logger.error(
+          `Impossible de poster le log dans le salon ${channelId}`,
+          err,
+        ),
+      );
   }
 }

@@ -107,7 +107,6 @@ export function MembersPage({ server }: { server: DashboardServer }) {
                 <th className="px-6 py-4">Rejoint</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
-<<<<<<< Updated upstream
             </thead>
             <tbody className="bg-[#140030]/50 divide-y divide-border/10">
               {isLoading ? (
@@ -134,26 +133,6 @@ export function MembersPage({ server }: { server: DashboardServer }) {
             </tbody>
           </table>
         </div>
-=======
-            ) : error ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-red-400">
-                  {error}
-                </td>
-              </tr>
-            ) : paginated.length > 0 ? (
-              paginated.map((m) => <MemberRow key={m.id} member={m} />)
-            ) : (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm font-semibold text-[#8e7aab]">
-                  Aucun membre trouvé.
-                </td>
-              </tr>
-            )
-            }
-          </tbody>
-        </table>
->>>>>>> Stashed changes
 
         <div className="bg-[#B100FC]/15 border-t border-[#9D4EDD]/50 px-6 py-4 flex items-center justify-between gap-4 select-none">
           <span className="text-xs font-semibold text-[#dcd7d7]">

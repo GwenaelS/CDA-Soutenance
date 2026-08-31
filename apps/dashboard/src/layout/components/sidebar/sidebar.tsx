@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Settings, Menu, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Home, ChevronDown, ChevronUp } from "lucide-react";
 import type { ServerListProps } from "@wystrelia/shared/types";
 
 export default function ServerList({
